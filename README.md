@@ -1,4 +1,4 @@
-# algoviz
+# foofoo
 
 To develop:
 ```
