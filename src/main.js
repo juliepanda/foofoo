@@ -1,7 +1,10 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
-var Test = require('./Test');
-var LinkedList = require('./LinkedList');
+let React = require('react'),
+	ReactDOM = require('react-dom'),
+	Test = require('./Test'),
+	LinkedList = require('./LinkedList'),
+	injectTapEventPlugin = require("react-tap-event-plugin");
+
+injectTapEventPlugin();
 
 var App = React.createClass({
 	render: function() {
