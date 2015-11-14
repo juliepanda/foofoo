@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify -t [ babelify --presets [ react es2015 ] ] src/main.js -o dist/bundle.js",
-    "watch": "watchify -t [ babelify --presets [ react es2015 ] ] src/main.js -o dist/bundle.js -v"
+    "build": "browserify -t [ babelify --presets [ react es2015 ] ] src/main.js -o static/dist/bundle.js",
+    "watch": "watchify -t [ babelify --presets [ react es2015 ] ] src/main.js -o static/dist/bundle.js -v"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
     "material-ui": "^0.13.2",
     "react": "^0.14.2",
     "react-dom": "^0.14.2",
-    "react-faux-dom": "^2.1.1"
+    "react-faux-dom": "^2.1.1",
+    "react-tap-event-plugin": "^0.2.1"
   }
 }

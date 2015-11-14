@@ -1,1 +1,0 @@
-console.error("Error: Cannot find module 'react-tap-event-plugin' from '/Users/jpan2012/workspace/algoviz/src'");
