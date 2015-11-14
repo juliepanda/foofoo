@@ -1,10 +1,21 @@
-var React = require('react');
+/* jshint esnext:true */
+let React = require('react');
+let request = require('superagent');
 
-var Test = React.createClass({
+let Test = React.createClass({
+	componentWillMount: function() {
+		request
+		.get('http://127.0.0.1:5000/api/users')
+		.accept('application/json')
+		.end( function(err, res){
+			console.log(res);
+		});
+
+	},
 	render: function() {
 		return (
 			<div>
-				<h1>Test</h1>
+			<h1>Test</h1>
 			</div>
 		)
 	}

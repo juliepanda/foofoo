@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "browserify -t [ babelify --presets [ react es2015 ] ] src/main.js -o static/dist/bundle.js",
-    "watch": "watchify -t [ babelify --presets [ react es2015 ] ] src/main.js -o static/dist/bundle.js -v"
+    "watch": "watchify -t [ babelify --presets [ react es2015 ] ] src/main.js -o static/dist/bundle.js -v",
+    "start": "python -m SimpleHTTPServer 3000"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "react": "^0.14.2",
     "react-dom": "^0.14.2",
     "react-faux-dom": "^2.1.1",
-    "react-tap-event-plugin": "^0.2.1"
+    "react-tap-event-plugin": "^0.2.1",
+    "superagent": "^1.4.0"
   }
 }
