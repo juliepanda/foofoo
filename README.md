@@ -1,5 +1,16 @@
 # algoviz
+
+To develop:
 ```
-npm install --save react react-dom babelify babel-preset-react babel-preset-es2015
+npm install
+npm run watchify
+```
+then, in a new terminal
+```
+npm run start
+```
+
+To build production:
+```
 npm run build
 ```
