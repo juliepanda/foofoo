@@ -20594,12 +20594,162 @@ module.exports = function(arr, fn, initial){
 var React = require('react');
 var request = require('superagent');
 
+var BuyPage = React.createClass({
+	displayName: 'BuyPage',
+
+	componentWillMount: function componentWillMount() {
+		request.get('http://127.0.0.1:5000/api/users').accept('application/json').end(function (err, res) {
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+	},
+	render: function render() {
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'h1',
+				null,
+				'BuyPage'
+			)
+		);
+	}
+});
+
+module.exports = BuyPage;
+
+},{"react":162,"superagent":163}],167:[function(require,module,exports){
+'use strict';
+
+/* jshint esnext:true */
+var React = require('react');
+
+var Header = React.createClass({
+	displayName: 'Header',
+
+	render: function render() {
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'p',
+				null,
+				'Marketplace to trade your meal swipes'
+			)
+		);
+	}
+});
+
+module.exports = Header;
+
+},{"react":162}],168:[function(require,module,exports){
+'use strict';
+
+/* jshint esnext:true */
+var React = require('react');
+var request = require('superagent');
+
+var MarketJumbotron = React.createClass({
+	displayName: 'MarketJumbotron',
+
+	getInitialState: function getInitialState() {
+		return {
+			'recentPrice': 0
+		};
+	},
+	componentWillMount: function componentWillMount() {
+		request.get('http://127.0.0.1:5000/api/users').accept('application/json').end(function (err, res) {
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+	},
+	render: function render() {
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'p',
+					null,
+					'Last meal bought at: ',
+					React.createElement(
+						'span',
+						null,
+						this.state.recentPrice
+					)
+				)
+			),
+			React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'button',
+					{ onClick: this.props._handleBuy },
+					'Buy a Meal'
+				),
+				React.createElement(
+					'button',
+					{ onClick: this.props._handleSell },
+					'Sell a Meal'
+				)
+			)
+		);
+	}
+});
+
+module.exports = MarketJumbotron;
+
+},{"react":162,"superagent":163}],169:[function(require,module,exports){
+'use strict';
+
+/* jshint esnext:true */
+var React = require('react');
+var request = require('superagent');
+
+var SellPage = React.createClass({
+	displayName: 'SellPage',
+
+	componentWillMount: function componentWillMount() {
+		request.get('http://127.0.0.1:5000/api/users').accept('application/json').end(function (err, res) {
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+	},
+	render: function render() {
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'h1',
+				null,
+				'SellPage'
+			)
+		);
+	}
+});
+
+module.exports = SellPage;
+
+},{"react":162,"superagent":163}],170:[function(require,module,exports){
+'use strict';
+
+/* jshint esnext:true */
+var React = require('react');
+var request = require('superagent');
+
 var Test = React.createClass({
 	displayName: 'Test',
 
 	componentWillMount: function componentWillMount() {
 		request.get('http://127.0.0.1:5000/api/users').accept('application/json').end(function (err, res) {
-			console.log(res);
+			if (res.status === 200) {
+				console.log(res.text);
+			}
 		});
 	},
 	render: function render() {
@@ -20617,32 +20767,57 @@ var Test = React.createClass({
 
 module.exports = Test;
 
-},{"react":162,"superagent":163}],167:[function(require,module,exports){
+},{"react":162,"superagent":163}],171:[function(require,module,exports){
 'use strict';
 
 /* jshint esnext: true */
 var React = require('react'),
     ReactDOM = require('react-dom'),
     Test = require('./Test'),
+    Header = require('./Header'),
+    MarketJumbotron = require('./MarketJumbotron'),
+    BuyPage = require('./BuyPage'),
+    SellPage = require('./SellPage'),
     injectTapEventPlugin = require("react-tap-event-plugin");
 
 var App = React.createClass({
 	displayName: 'App',
 
+	getInitialState: function getInitialState() {
+		return {
+			buyIntent: false,
+			sellIntent: false
+		};
+	},
+	_handleBuy: function _handleBuy() {
+		console.log('switch to buy view');
+		this.setState({
+			buyIntent: true
+		});
+	},
+	_handleSell: function _handleSell() {
+		console.log('switch to sell view');
+		this.setState({
+			sellIntent: true
+		});
+	},
 	render: function render() {
+		var jumbotron = !this.state.buyIntent && !this.state.sellIntent ? React.createElement(MarketJumbotron, { _handleSell: this._handleSell, _handleBuy: this._handleBuy }) : this.state.buyIntent ? React.createElement(BuyPage, null) : React.createElement(SellPage, null);
 		return React.createElement(
 			'div',
 			null,
 			React.createElement(
 				'h1',
 				null,
-				'HI'
+				'FooFoo Space'
 			),
-			React.createElement(Test, null)
+			React.createElement(Header, null),
+			React.createElement(Test, null),
+			jumbotron
 		);
 	}
 });
 
 ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
 
-},{"./Test":166,"react":162,"react-dom":2,"react-tap-event-plugin":6}]},{},[167]);
+},{"./BuyPage":166,"./Header":167,"./MarketJumbotron":168,"./SellPage":169,"./Test":170,"react":162,"react-dom":2,"react-tap-event-plugin":6}]},{},[171]);

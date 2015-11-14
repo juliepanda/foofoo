@@ -2,7 +2,7 @@
 let React = require('react');
 let request = require('superagent');
 
-let Test = React.createClass({
+let BuyPage = React.createClass({
 	componentWillMount: function() {
 		request
 		.get('http://127.0.0.1:5000/api/users')
@@ -17,10 +17,10 @@ let Test = React.createClass({
 	render: function() {
 		return (
 			<div>
-			<h1>Test</h1>
+			<h1>BuyPage</h1>
 			</div>
 		)
 	}
 });
 
-module.exports = Test;
+module.exports = BuyPage;
