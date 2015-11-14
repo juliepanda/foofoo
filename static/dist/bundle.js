@@ -20597,6 +20597,22 @@ var request = require('superagent');
 var BuyPage = React.createClass({
 	displayName: 'BuyPage',
 
+	_handlePriceOnChange: function _handlePriceOnChange(e) {
+		e.preventDefault();
+		var val = parseFloat(e.target.value).toFixed(2);
+		if (isNaN(val)) {
+			console.log(false);
+		} else {
+			console.log(true);
+		}
+	},
+	_handleNNumberOnChange: function _handleNNumberOnChange(e) {
+		e.preventDefault();
+		var str = e.target.value;
+		var val = parseInt(str.slice(1, str.length));
+		var n = str.slice(0, 1);
+		if (n === 'N' & val.length <= 8) console.log(true);else console.log(false);
+	},
 	componentWillMount: function componentWillMount() {
 		request.get('http://127.0.0.1:5000/api/users').accept('application/json').end(function (err, res) {
 			if (res.status === 200) {
@@ -20612,6 +20628,28 @@ var BuyPage = React.createClass({
 				'h1',
 				null,
 				'BuyPage'
+			),
+			React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'span',
+					null,
+					'Buy Price: '
+				),
+				React.createElement('input', { type: 'text', onChange: this._handlePriceOnChange }),
+				React.createElement(
+					'span',
+					null,
+					'Quantity: '
+				),
+				React.createElement('input', { type: 'number', min: '1', max: '5' }),
+				React.createElement(
+					'span',
+					null,
+					'N-number: '
+				),
+				React.createElement('input', { type: 'text', onChange: this._handleNNumberOnChange })
 			)
 		);
 	}
