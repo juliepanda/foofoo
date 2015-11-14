@@ -1,3 +1,4 @@
+/* jshint esnext: true */
 let React = require('react'),
 	ReactDOM = require('react-dom'),
 	Test = require('./Test'),
@@ -6,12 +7,15 @@ let React = require('react'),
 
 injectTapEventPlugin();
 
+
+
 var App = React.createClass({
 	render: function() {
+		var data = 'cool';
 		return (
 			<div>
 				<h1>HI</h1>
-				<Test />
+				<Test data={data} />
 				<LinkedList />
 			</div>
 		)
