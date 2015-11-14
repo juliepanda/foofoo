@@ -6,8 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "browserify -t [ babelify --presets [ react es2015 ] ] src/main.js -o dist/bundle.js",
-    "watch": "watchify -t [ babelify --presets [ react es2015 ] ] src/main.js -o dist/bundle.js -v",
-    "start": "python -m SimpleHTTPServer"
+    "watch": "watchify -t [ babelify --presets [ react es2015 ] ] src/main.js -o dist/bundle.js -v"
   },
   "repository": {
     "type": "git",
