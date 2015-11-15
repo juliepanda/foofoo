@@ -1,5 +1,6 @@
 /* jshint esnext:true */
 let React = require('react');
+let LoginPage = require('./LoginPage');
 
 let Header = React.createClass({
 	getInitialState: function() {
@@ -17,20 +18,26 @@ let Header = React.createClass({
 		this.setState({logged: logged});
 	},
 	render: function() {
-		let logoutBtn = null;
+		let logBtn = null;
 		console.log(this.state.logged);
 		if (this.state.logged) {
-			logoutBtn = (
+			logBtn = (
 				<div className="logout">
 					<button className="button" onClick={this._onLogout}>Logout</button>
 				</div>
 			);
+		} else {
+		  	logBtn = (
+				<div className="logout">
+					<button className="button" onClick={this.props._handleLogin}>Login</button>
+				</div>
+			)
 		}
 		return (
 			<div className="header">
 				<span className="big-title">FooFoo Space</span>
 				<span className="subtitle">Marketplace to trade your campus meal swipes!</span>
-				{logoutBtn}
+				{logBtn}
 			</div>
 		)
 	}

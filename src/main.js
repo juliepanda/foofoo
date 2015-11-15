@@ -44,13 +44,12 @@ var App = React.createClass({
 				});
 			}
 		});
-
 	},
 	render: function() {
 		let jumbotron = ((!this.state.saleIntent && !this.state.loginIntent) ? <MarketJumbotron _handleLogin={this._handleLogin} _handleSale={this._handleSale} /> : (this.state.saleIntent) ? <SalePage /> : <LoginPage _handleLoginClick={this._handleLoginClick} />)
 		return (
 			<div className="row">
-				<Header />
+				<Header _handleLogin={this._handleLogin} />
 				<div className="jumbotron center">
 					{jumbotron}
 				</div>

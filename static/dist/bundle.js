@@ -20368,6 +20368,7 @@ module.exports = function(arr, fn, initial){
 
 /* jshint esnext:true */
 var React = require('react');
+var LoginPage = require('./LoginPage');
 
 var Header = React.createClass({
 	displayName: 'Header',
@@ -20387,16 +20388,26 @@ var Header = React.createClass({
 		this.setState({ logged: logged });
 	},
 	render: function render() {
-		var logoutBtn = null;
+		var logBtn = null;
 		console.log(this.state.logged);
 		if (this.state.logged) {
-			logoutBtn = React.createElement(
+			logBtn = React.createElement(
 				'div',
 				{ className: 'logout' },
 				React.createElement(
 					'button',
 					{ className: 'button', onClick: this._onLogout },
 					'Logout'
+				)
+			);
+		} else {
+			logBtn = React.createElement(
+				'div',
+				{ className: 'logout' },
+				React.createElement(
+					'button',
+					{ className: 'button', onClick: this.props._handleLogin },
+					'Login'
 				)
 			);
 		}
@@ -20413,14 +20424,14 @@ var Header = React.createClass({
 				{ className: 'subtitle' },
 				'Marketplace to trade your campus meal swipes!'
 			),
-			logoutBtn
+			logBtn
 		);
 	}
 });
 
 module.exports = Header;
 
-},{"react":158}],163:[function(require,module,exports){
+},{"./LoginPage":163,"react":158}],163:[function(require,module,exports){
 'use strict';
 
 /* jshint esnext:true */
@@ -20506,13 +20517,16 @@ var MarketJumbotron = React.createClass({
 			'recentPrice': 0
 		};
 	},
-	componentWillMount: function componentWillMount() {
-		request.get('http://127.0.0.1:5000/api/sell_posts').accept('application/json').end(function (err, res) {
-			if (res.status === 200) {
-				console.log(res.text);
-			}
-		});
-	},
+	// componentWillMount: function() {
+	// 	request
+	// 	.get('http://127.0.0.1:5000/api/sell_posts')
+	// 	.accept('application/json')
+	// 	.end( function(err, res){
+	// 		if (res.status === 200) {
+	// 			console.log(res.text);
+	// 		}
+	// 	});
+	// },
 	render: function render() {
 		return React.createElement(
 			'div',
@@ -20541,11 +20555,6 @@ var MarketJumbotron = React.createClass({
 						'button',
 						{ className: 'button', onClick: this.props._handleSale },
 						'Buy/Sell a Meal'
-					),
-					React.createElement(
-						'button',
-						{ className: 'button', onClick: this.props._handleLogin },
-						'Login'
 					)
 				)
 			)
@@ -20567,7 +20576,10 @@ var BuyPage = React.createClass({
 
 	getInitialState: function getInitialState() {
 		var logged = localStorage.getItem('foofoologged');
+
 		return {
+			diningList: ['WEINSTEIN', 'KIMMEL', 'HAYDEN', 'RUBIN', 'PALLADIUM', 'THIRD-NORTH', 'U-HALL'],
+			diningChecked: {},
 			price: 0,
 			nNumber: '',
 			netId: '',
@@ -20596,20 +20608,74 @@ var BuyPage = React.createClass({
 		var str = e.target.value;
 		if (str.length > 8) console.log(false);else this.setState({ netid: str });
 	},
+	_handleBuy: function _handleBuy() {
+		var json = {
+			data: {
+				type: "sell_posts",
+				attributes: {
+					price: 5.00,
+					locations: ["WEINSTEIN", "RUBIN", "KIMMEL"],
+					days_until_expiration: 10
+				}
+			},
+			links: {
+				seller: {
+					type: "people",
+					_id: "5647beede78cd5931a01d917"
+				},
+				buyer: {}
+			}
+		};
+		request.post('http://127.0.0.1:5000/api/buy_posts').send({ 'netid': netid, 'password': password }).end(function (err, res) {
+			if (res.status === 200) {
+				var js = JSON.parse(res.text)['data'];
+				localStorage.setItem('foofoologged', true);
+				location.reload();
+			} else {
+				this.setState({
+					failedLogin: true
+				});
+			}
+		});
+	},
+	_handleSell: function _handleSell() {},
+	_toggleCheckbox: function _toggleCheckbox(i) {
+		var hall = this.state.diningList[i];
+		var upd = this.state.diningChecked;
+		upd[hall]['checked'] = upd[hall]['checked'] ? false : true;
+		this.setState({
+			diningChecked: upd
+		});
+	},
 	componentWillMount: function componentWillMount() {
+		var _this = this;
+
 		var logged = localStorage.getItem('foofoologged');
-		console.log(logged);
 		this.setState({ logged: logged });
-		// request
-		// .get('http://127.0.0.1:5000/api/people')
-		// .accept('application/json')
-		// .end( function(err, res){
-		// 	if (res.status === 200) {
-		// 		console.log(res.text);
-		// 	}
-		// });
+		this.state.diningList.map(function (hall) {
+			_this.state.diningChecked[hall] = {
+				checked: false,
+				value: hall
+			};
+		});
 	},
 	render: function render() {
+		var _this2 = this;
+
+		var diningSet = this.state.diningList.map(function (hall, i) {
+			var checker = _this2.state.diningChecked[hall]['checked'];
+			return React.createElement(
+				'div',
+				null,
+				React.createElement('input', { type: 'checkbox', key: i, checked: checker, value: hall, onChange: _this2._toggleCheckbox.bind(_this2, i) }),
+				React.createElement(
+					'span',
+					null,
+					hall
+				)
+			);
+		});
+
 		var extraQ = null;
 		if (this.state.logged) {
 			extraQ = null;
@@ -20653,11 +20719,6 @@ var BuyPage = React.createClass({
 			'div',
 			null,
 			React.createElement(
-				'label',
-				null,
-				'Buy'
-			),
-			React.createElement(
 				'form',
 				null,
 				React.createElement(
@@ -20685,6 +20746,34 @@ var BuyPage = React.createClass({
 								'Quantity: '
 							),
 							React.createElement('input', { type: 'number', min: '1', max: '5' })
+						),
+						React.createElement(
+							'div',
+							{ className: 'inputset' },
+							React.createElement(
+								'label',
+								null,
+								'Offer expire in (days): '
+							),
+							React.createElement('input', { type: 'number', min: '1', max: '10' })
+						)
+					),
+					React.createElement(
+						'div',
+						null,
+						React.createElement(
+							'div',
+							{ className: 'inputset' },
+							React.createElement(
+								'label',
+								null,
+								'Dining Halls (1 or many): '
+							),
+							React.createElement(
+								'fieldset',
+								null,
+								diningSet
+							)
 						)
 					),
 					extraQ,
@@ -20692,8 +20781,13 @@ var BuyPage = React.createClass({
 				),
 				React.createElement(
 					'button',
-					{ className: 'button' },
-					'Submit'
+					{ className: 'button', onClick: this._handleBuy },
+					'Buy'
+				),
+				React.createElement(
+					'button',
+					{ className: 'button', onClick: this._handleSell },
+					'Sell'
 				)
 			)
 		);
@@ -20756,7 +20850,7 @@ var App = React.createClass({
 		return React.createElement(
 			'div',
 			{ className: 'row' },
-			React.createElement(Header, null),
+			React.createElement(Header, { _handleLogin: this._handleLogin }),
 			React.createElement(
 				'div',
 				{ className: 'jumbotron center' },
