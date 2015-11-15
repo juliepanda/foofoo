@@ -20389,7 +20389,6 @@ var Header = React.createClass({
 	},
 	render: function render() {
 		var logBtn = null;
-		console.log(this.state.logged);
 		if (this.state.logged) {
 			logBtn = React.createElement(
 				'div',
@@ -20411,13 +20410,14 @@ var Header = React.createClass({
 				)
 			);
 		}
+
 		return React.createElement(
 			'div',
 			{ className: 'header' },
 			React.createElement(
-				'span',
+				'strong',
 				{ className: 'big-title' },
-				'FooFoo Space'
+				'foofoo.space'
 			),
 			React.createElement(
 				'span',
@@ -20431,7 +20431,7 @@ var Header = React.createClass({
 				React.createElement(
 					'button',
 					{ className: 'button', onClick: this.props._showTickers },
-					'Tickers'
+					'Add Post'
 				)
 			)
 		);
@@ -20526,16 +20526,6 @@ var MarketJumbotron = React.createClass({
 			'recentPrice': 0
 		};
 	},
-	// componentWillMount: function() {
-	// 	request
-	// 	.get('http://127.0.0.1:5000/api/sell_posts')
-	// 	.accept('application/json')
-	// 	.end( function(err, res){
-	// 		if (res.status === 200) {
-	// 			console.log(res.text);
-	// 		}
-	// 	});
-	// },
 	render: function render() {
 		return React.createElement(
 			'div',
@@ -20543,20 +20533,6 @@ var MarketJumbotron = React.createClass({
 			React.createElement(
 				'div',
 				null,
-				React.createElement(
-					'div',
-					null,
-					React.createElement(
-						'p',
-						null,
-						'Last meal bought at: ',
-						React.createElement(
-							'span',
-							null,
-							this.state.recentPrice
-						)
-					)
-				),
 				React.createElement(
 					'div',
 					null,
@@ -20890,7 +20866,6 @@ var TickerPanel = React.createClass({
 		request.get('http://127.0.0.1:5000/api/buy_posts').end(function (err, res) {
 			if (res.status === 200) {
 				var js = JSON.parse(res.text);
-				console.log(js);
 				_this2.setState({ allBuys: js });
 			}
 		});
@@ -20903,6 +20878,8 @@ var TickerPanel = React.createClass({
 			diningChecked: upd
 		});
 	},
+	_handleBuyConnect: function _handleBuyConnect(post_id) {},
+	_handleSellConnect: function _handleSellConnect(post_id) {},
 	render: function render() {
 		var _this3 = this;
 
@@ -20965,7 +20942,7 @@ var TickerPanel = React.createClass({
 						null,
 						React.createElement(
 							'button',
-							null,
+							{ key: buy['_id'], onClick: _this3._handleBuyConnect.bind(_this3, buy['_id']) },
 							'Connect'
 						)
 					)
@@ -20994,7 +20971,7 @@ var TickerPanel = React.createClass({
 						null,
 						React.createElement(
 							'button',
-							null,
+							{ key: sell['_id'], onClick: _this3._handleSellConnect.bind(_this3, sell['_id']) },
 							'Connect'
 						)
 					)
@@ -21008,6 +20985,11 @@ var TickerPanel = React.createClass({
 			React.createElement(
 				'div',
 				{ className: 'twelve columns control' },
+				React.createElement(
+					'strong',
+					null,
+					'Select dining halls: '
+				),
 				diningSet
 			),
 			React.createElement(
@@ -21165,6 +21147,7 @@ var App = React.createClass({
 	render: function render() {
 		var jumbotron = !this.state.saleIntent && !this.state.loginIntent ? React.createElement(MarketJumbotron, { _handleLogin: this._handleLogin, _handleSale: this._handleSale }) : this.state.saleIntent ? React.createElement(SalePage, { _findGoodBuy: this._findGoodBuy, _findGoodSell: this._findGoodSell }) : React.createElement(LoginPage, { _handleLoginClick: this._handleLoginClick });
 		var ticker = React.createElement(TickerPanel, null);
+		if (!this.state.showTickers) jumbotron = ticker;
 		return React.createElement(
 			'div',
 			{ className: 'row' },
@@ -21172,7 +21155,7 @@ var App = React.createClass({
 			React.createElement(
 				'div',
 				{ className: 'jumbotron center' },
-				ticker
+				jumbotron
 			)
 		);
 	}

@@ -40,7 +40,6 @@ let TickerPanel = React.createClass({
 		.end( (err, res) => {
 			if (res.status === 200) {
 				let js = JSON.parse(res.text);
-				console.log(js);
 				this.setState({allBuys: js});
 			}
 		});
@@ -54,6 +53,13 @@ let TickerPanel = React.createClass({
 			diningChecked: upd
 		});
 
+	},
+	_handleBuyConnect: function(post_id) {
+
+	
+	},
+	_handleSellConnect: function(post_id) {
+	
 	},
 	render: function() {
 		let diningSet = this.state.diningList.map( (hall, i) => {
@@ -97,7 +103,7 @@ let TickerPanel = React.createClass({
 					<tr>
 						<td>{Date(buy['data']['attributes']['expired_by']['$date'])}</td>
 						<td>{buy['data']['attributes']['price']}</td>
-						<td><button>Connect</button></td>
+						<td><button key={buy['_id']} onClick={this._handleBuyConnect.bind(this, buy['_id'])}>Connect</button></td>
 					</tr>
 				);
 			});
@@ -110,7 +116,7 @@ let TickerPanel = React.createClass({
 					<tr>
 						<td>{Date(sell['data']['attributes']['expired_by']['$date'])}</td>
 						<td>{sell['data']['attributes']['price']}</td>
-						<td><button>Connect</button></td>
+						<td><button key={sell['_id']} onClick={this._handleSellConnect.bind(this, sell['_id'])}>Connect</button></td>
 					</tr>
 				);
 			});
@@ -120,6 +126,7 @@ let TickerPanel = React.createClass({
 		return (
 			<div className="row">
 				<div className="twelve columns control">
+				<strong>Select dining halls: </strong>
 					{diningSet}
 				</div>
 					<div>

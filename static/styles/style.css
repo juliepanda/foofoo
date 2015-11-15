@@ -15,7 +15,7 @@
 }
 
 .big-title {
-	font-size: 3em;
+	font-size: 3.2em;
 	align-self: baseline;
 }
 
@@ -32,7 +32,7 @@
 
 /* JUMBOTRON */
 .jumbotron {
-	border: 1px dotted gray;
+	border: 1px solid gray;
 	border-radius: 25px;
 	height: 600px;
 	padding: 15px;
@@ -41,27 +41,26 @@
 .control {
 	height: 50px;
 	display: inline-block;
-	margin 0 auto;
 }
 
 .left-ticker {
-	border: 1px dotted lightgray;
+	border: 1px solid lightgray;
 	border-radius: 15px;
 	height: 550px;
-	padding: 5px;
+	padding: 10px;
 
 }
 
 .right-ticker {
-	border: 1px dotted lightgray;
+	border: 1px solid lightgray;
 	border-radius: 15px;
 	height: 550px;
-	padding: 5px;
+	padding: 10px;
 }
 
 .ticker-checkbox-set {
 	display: inline-block;
-	padding: 20px;
+	padding: 10px;
 }
 
 /* inputs */

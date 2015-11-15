@@ -70,16 +70,16 @@ var App = React.createClass({
 	},
 	_showTickers: function() {
 		this.setState({ showTickers: true });
-	
 	},
 	render: function() {
 		let jumbotron = ((!this.state.saleIntent && !this.state.loginIntent) ? <MarketJumbotron _handleLogin={this._handleLogin} _handleSale={this._handleSale} /> : (this.state.saleIntent) ? <SalePage _findGoodBuy={this._findGoodBuy} _findGoodSell={this._findGoodSell} /> : <LoginPage _handleLoginClick={this._handleLoginClick} />)
 		let ticker =  (<TickerPanel />);
+		if (!this.state.showTickers) jumbotron = ticker;
 		return (
 			<div className="row">
 				<Header _handleLogin={this._handleLogin} _showTickers={this._showTickers} />
 				<div className="jumbotron center">
-					{ticker}
+					{jumbotron}
 				</div>
 			</div>
 		)

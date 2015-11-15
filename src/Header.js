@@ -19,7 +19,6 @@ let Header = React.createClass({
 	},
 	render: function() {
 		let logBtn = null;
-		console.log(this.state.logged);
 		if (this.state.logged) {
 			logBtn = (
 				<div className="logout">
@@ -33,13 +32,14 @@ let Header = React.createClass({
 				</div>
 			)
 		}
+
 		return (
 			<div className="header">
-				<span className="big-title">FooFoo Space</span>
+				<strong className="big-title">foofoo.space</strong>
 				<span className="subtitle">Marketplace to trade your campus meal swipes!</span>
 				{logBtn}
 				<div className="logout">
-					<button className="button" onClick={this.props._showTickers}>Tickers</button>
+					<button className="button" onClick={this.props._showTickers}>Add Post</button>
 				</div>
 			</div>
 		)
