@@ -24,7 +24,7 @@ def people():
             json_results.append(result)
         return Response(toJson(json_results), status=200, mimetype='application/json')
     
-    elif request.method == 'POST':
+    if request.method == 'POST':
         js = request.json
         netid = js['data']['attributes']['netid']
         res = db['people'].find_one({"data.attributes.netid": netid })
@@ -38,7 +38,7 @@ def people():
 
 
 @app.route('/api/people/<person_id>', methods=['GET', 'PATCH', 'OPTIONS'])
-def get_person(person_id):
+def person(person_id):
     if request.method == 'GET':
         result = db['people'].find_one({'_id': ObjectId(person_id)})
         return Response(toJson(result), status=200, mimetype='application/json')
@@ -67,14 +67,14 @@ def get_person(person_id):
     else:
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
-@app.route('/api/sell_posts/', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/sell_posts', methods=['GET', 'POST', 'OPTIONS'])
 def sell_posts():
     if request.method == 'GET':
         results = db['sell_posts'].find()
         json_results = []
         for result in results:
             json_results.append(result)
-        return toJson(json_results)
+        return Response(toJson(json_results), status=200, mimetype='application/json')
     
     if request.method == 'POST':
         js = request.json
@@ -90,6 +90,9 @@ def sell_posts():
             js['data']['attributes']['expired_by'] = expired_by
             if js['data']['attributes']['price'] != None and js['data']['attributes']['expired_by'] != None and len(js['data']['attributes']['locations']) > 0 and js['data']['type'] == 'sell_posts':
                 res = db['sell_posts'].insert(js)
+                post_id = json.loads(toJson(res))['$oid']
+                if post_id != None:
+                    db.people.update({"_id": ObjectId(seller_id)}, {"$push": { "links.sell_posts": { "_id": post_id } }})
                 return Response(toJson(res), status=200, mimetype='application/json')
             else:
                 return Response(json.dumps({"error": "missing required info"}), status=404, mimetype='application/json')
@@ -97,7 +100,7 @@ def sell_posts():
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 @app.route('/api/sell_posts/<post_id>', methods=['GET', 'DELETE'])
-def get_sell_post(post_id):
+def sell_post(post_id):
     if request.method == 'GET':
         result = db['sell_posts'].find_one({'_id': ObjectId(post_id)})
         return Response(toJson(result), status=200, mimetype='application/json')
@@ -108,7 +111,7 @@ def get_sell_post(post_id):
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 
-@app.route('/api/buy_posts/', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/buy_posts', methods=['GET', 'POST', 'OPTIONS'])
 def buy_posts():
     if request.method == 'GET':
         results = db['buy_posts'].find()
@@ -139,11 +142,15 @@ def buy_posts():
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 @app.route('/api/buy_posts/<post_id>', methods=['GET'])
-def get_buy_post(post_id):
+def buy_post(post_id):
     if request.method == 'GET':
         result = db['buy_posts'].find_one({'_id': ObjectId(post_id)})
-        return toJson(result)
-    return 404
+        return Response(toJson(result), status=200, mimetype='application/json')
+    if request.method == 'DELETE':
+        result = db['buy_posts'].remove({'_id': ObjectId(post_id)})
+        return Response(toJson(result), status=200, mimetype='application/json')
+    else:
+        return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 if __name__ == '__main__':
     app.debug = True
