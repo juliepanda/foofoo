@@ -88,7 +88,7 @@ def sell_posts():
             diff = datetime.timedelta(days=offset)
             expired_by = now + diff
             js['data']['attributes']['expired_by'] = expired_by
-            if js['data']['attributes']['price'] != None and js['data']['attributes']['expired_by'] != None and len(js['data']['attributes']['locations']) > 0:
+            if js['data']['attributes']['price'] != None and js['data']['attributes']['expired_by'] != None and len(js['data']['attributes']['locations']) > 0 and js['data']['type'] == 'sell_posts':
                 res = db['sell_posts'].insert(js)
                 return Response(toJson(res), status=200, mimetype='application/json')
             else:
@@ -96,33 +96,47 @@ def sell_posts():
     else:
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
-@app.route('/api/sell_posts/<post_id>', methods=['GET', 'PATCH'])
+@app.route('/api/sell_posts/<post_id>', methods=['GET', 'DELETE'])
 def get_sell_post(post_id):
     if request.method == 'GET':
         result = db['sell_posts'].find_one({'_id': ObjectId(post_id)})
         return Response(toJson(result), status=200, mimetype='application/json')
-
+    if request.method == 'DELETE':
+        result = db['sell_posts'].remove({'_id': ObjectId(post_id)})
+        return Response(toJson(result), status=200, mimetype='application/json')
     else:
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 
-@app.route('/api/buy_posts/', methods=['GET'])
-def get_buy_posts():
+@app.route('/api/buy_posts/', methods=['GET', 'POST', 'OPTIONS'])
+def buy_posts():
     if request.method == 'GET':
         results = db['buy_posts'].find()
         json_results = []
         for result in results:
             json_results.append(result)
         return toJson(json_results)
-
-@app.route('/api/buy_posts/', methods=['POST'])
-def post_buy_posts():
+    
     if request.method == 'POST':
-        data = request.json
-        # should add validation step here
-        db['buy_posts'].insert(data)
-        return 200
-    return 404
+        js = request.json
+        buyer_id = js['links']['buyer']['_id']
+        res = db['people'].find_one({"_id": ObjectId(buyer_id)})
+        if res == None:
+            return Response(json.dumps({"error": "buyer_id does not exist"}), status=404, mimetype='application/json')
+        else:
+            offset = js['data']['attributes']['days_until_expiration']
+            now = datetime.datetime.now()
+            diff = datetime.timedelta(days=offset)
+            expired_by = now + diff
+            js['data']['attributes']['expired_by'] = expired_by
+            print js['data']['type']
+            if js['data']['attributes']['price'] != None and js['data']['attributes']['expired_by'] != None and len(js['data']['attributes']['locations']) > 0 and js['data']['type'] == 'buy_posts':
+                res = db['buy_posts'].insert(js)
+                return Response(toJson(res), status=200, mimetype='application/json')
+            else:
+                return Response(json.dumps({"error": "missing required info"}), status=404, mimetype='application/json')
+    else:
+        return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 @app.route('/api/buy_posts/<post_id>', methods=['GET'])
 def get_buy_post(post_id):
