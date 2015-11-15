@@ -17,6 +17,8 @@ var App = React.createClass({
 			loggedIn: logged,
 			userData: {},
 			failedLogin: false,
+			showSells: false,
+			showBuys: false
 		};
 	},
 	_handleSale: function() {
@@ -46,8 +48,27 @@ var App = React.createClass({
 			}
 		});
 	},
+	_findGoodBuy: function(post_id) {
+		request
+		.get('http://127.0.0.1:5000/api/sell_posts/nearest/' + post_id)
+		.end( function(err, res){
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+
+	},
+	_findGoodSell: function(post_id) {
+		request
+		.get('http://127.0.0.1:5000/api/buy_posts/nearest/' + post_id)
+		.end( function(err, res){
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+	},
 	render: function() {
-		let jumbotron = ((!this.state.saleIntent && !this.state.loginIntent) ? <MarketJumbotron _handleLogin={this._handleLogin} _handleSale={this._handleSale} /> : (this.state.saleIntent) ? <SalePage /> : <LoginPage _handleLoginClick={this._handleLoginClick} />)
+		let jumbotron = ((!this.state.saleIntent && !this.state.loginIntent) ? <MarketJumbotron _handleLogin={this._handleLogin} _handleSale={this._handleSale} /> : (this.state.saleIntent) ? <SalePage _findGoodBuy={this._findGoodBuy} _findGoodSell={this._findGoodSell} /> : <LoginPage _handleLoginClick={this._handleLoginClick} />)
 		return (
 			<div className="row">
 				<Header _handleLogin={this._handleLogin} />

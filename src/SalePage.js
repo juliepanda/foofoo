@@ -77,10 +77,10 @@ let BuyPage = React.createClass({
 		request
 		.post('http://127.0.0.1:5000/api/buy_posts')
 		.send(json)
-		.end( function(err, res){
+		.end( (err, res) => {
 			if (res.status === 200) {
 				console.log(res.text);
-				this.props._findBuyer();
+				this.props._findGoodSell(JSON.parse(res.text)['$oid'])
 			}
 		});
 
@@ -110,9 +110,10 @@ let BuyPage = React.createClass({
 		request
 		.post('http://127.0.0.1:5000/api/sell_posts')
 		.send(json)
-		.end( function(err, res){
+		.end( (err, res) => {
 			if (res.status === 200) {
 				console.log(res.text);
+				this.props._findGoodBuy(JSON.parse(res.text)['$oid'])
 			}
 		});
 

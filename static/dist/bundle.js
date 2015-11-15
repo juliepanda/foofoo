@@ -20647,7 +20647,7 @@ var BuyPage = React.createClass({
 		request.post('http://127.0.0.1:5000/api/buy_posts').send(json).end(function (err, res) {
 			if (res.status === 200) {
 				console.log(res.text);
-				this.props._findBuyer();
+				_this.props._findGoodSell(JSON.parse(res.text)['$oid']);
 			}
 		});
 	},
@@ -20678,6 +20678,7 @@ var BuyPage = React.createClass({
 		request.post('http://127.0.0.1:5000/api/sell_posts').send(json).end(function (err, res) {
 			if (res.status === 200) {
 				console.log(res.text);
+				_this2.props._findGoodBuy(JSON.parse(res.text)['$oid']);
 			}
 		});
 	},
@@ -20857,7 +20858,9 @@ var App = React.createClass({
 			loginIntent: false,
 			loggedIn: logged,
 			userData: {},
-			failedLogin: false
+			failedLogin: false,
+			showSells: false,
+			showBuys: false
 		};
 	},
 	_handleSale: function _handleSale() {
@@ -20884,8 +20887,22 @@ var App = React.createClass({
 			}
 		});
 	},
+	_findGoodBuy: function _findGoodBuy(post_id) {
+		request.get('http://127.0.0.1:5000/api/sell_posts/nearest/' + post_id).end(function (err, res) {
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+	},
+	_findGoodSell: function _findGoodSell(post_id) {
+		request.get('http://127.0.0.1:5000/api/buy_posts/nearest/' + post_id).end(function (err, res) {
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+	},
 	render: function render() {
-		var jumbotron = !this.state.saleIntent && !this.state.loginIntent ? React.createElement(MarketJumbotron, { _handleLogin: this._handleLogin, _handleSale: this._handleSale }) : this.state.saleIntent ? React.createElement(SalePage, null) : React.createElement(LoginPage, { _handleLoginClick: this._handleLoginClick });
+		var jumbotron = !this.state.saleIntent && !this.state.loginIntent ? React.createElement(MarketJumbotron, { _handleLogin: this._handleLogin, _handleSale: this._handleSale }) : this.state.saleIntent ? React.createElement(SalePage, { _findGoodBuy: this._findGoodBuy, _findGoodSell: this._findGoodSell }) : React.createElement(LoginPage, { _handleLoginClick: this._handleLoginClick });
 		return React.createElement(
 			'div',
 			{ className: 'row' },
