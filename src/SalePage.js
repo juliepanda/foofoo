@@ -4,11 +4,13 @@ let request = require('superagent');
 
 let BuyPage = React.createClass({
 	getInitialState: function() {
+		let logged = localStorage.getItem('foofoologged');
 		return {
 			price: 0,
 			nNumber: '',
 			netId: '',
-			name: ''
+			name: '',
+			logged: logged
 		};
 	},
 	_handlePriceOnChange: function(e) {
@@ -35,17 +37,38 @@ let BuyPage = React.createClass({
 		else this.setState({netid: str});
 	},
 	componentWillMount: function() {
-		request
-		.get('http://127.0.0.1:5000/api/people')
-		.accept('application/json')
-		.end( function(err, res){
-			if (res.status === 200) {
-				console.log(res.text);
-			}
-		});
+		let logged = localStorage.getItem('foofoologged');
+		console.log(logged);
+		this.setState({logged: logged});
+		// request
+		// .get('http://127.0.0.1:5000/api/people')
+		// .accept('application/json')
+		// .end( function(err, res){
+		// 	if (res.status === 200) {
+		// 		console.log(res.text);
+		// 	}
+		// });
 
 	},
 	render: function() {
+		let extraQ = null;
+		if (this.state.logged) {
+			extraQ = null;
+		} else {
+			extraQ = (
+				<div className="second-set-inputs">
+					<div className="inputset">
+						<label>N-number: </label><input type="text" onChange={this._handleNNumberOnChange} />
+					</div>
+					<div className="inputset">
+						<label>net id: </label><input type="text" onChange={this._handleNetIdChange}/>
+					</div>
+					<div className="inputset">
+						<label>Name: </label><input type="text" onChange={this._handleNameChange}/>
+					</div>
+				</div>
+			);
+		}
 		return (
 			<div>
 				<label>Buy</label>
@@ -59,18 +82,8 @@ let BuyPage = React.createClass({
 								<label>Quantity: </label><input type="number" min="1" max="5" />
 							</div>
 						</div>
+						{extraQ}
 						<br />
-						<div className="second-set-inputs">
-							<div className="inputset">
-								<label>N-number: </label><input type="text" onChange={this._handleNNumberOnChange} />
-							</div>
-							<div className="inputset">
-								<label>net id: </label><input type="text" onChange={this._handleNetIdChange}/>
-							</div>
-							<div className="inputset">
-								<label>Name: </label><input type="text" onChange={this._handleNameChange}/>
-							</div>
-						</div>
 					</div>
 					<button className="button">Submit</button>
 				</form>

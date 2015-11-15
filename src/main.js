@@ -9,10 +9,14 @@ let React = require('react'),
 
 var App = React.createClass({
 	getInitialState: function() {
+		let logged = localStorage.getItem('foofoologged');
+
 		return {
 			saleIntent: false,
 			loginIntent: false,
-			loggedIn: false
+			loggedIn: logged,
+			userData: {},
+			failedLogin: false,
 		};
 	},
 	_handleSale: function() {
@@ -26,13 +30,18 @@ var App = React.createClass({
 		});
 	},
 	_handleLoginClick: function(netid, password) {
-		console.log(netid, password);
 		request
 		.post('http://127.0.0.1:5000/api/login')
 		.send({'netid': netid, 'password': password })
 		.end( function(err, res){
 			if (res.status === 200) {
-				console.log(res.text);
+				let js = JSON.parse(res.text)['data'];
+				localStorage.setItem('foofoologged', true);
+				location.reload();
+			} else {
+				this.setState({
+					failedLogin: true
+				});
 			}
 		});
 

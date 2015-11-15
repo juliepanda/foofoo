@@ -20,17 +20,6 @@ let LoginPage = React.createClass({
 		let str = e.target.value;
 		this.setState({ password: str});
 	},
-	componentWillMount: function() {
-		request
-		.get('http://127.0.0.1:5000/api/people')
-		.accept('application/json')
-		.end( function(err, res){
-			if (res.status === 200) {
-				console.log(res.text);
-			}
-		});
-
-	},
 	render: function() {
 		return (
 			<div>

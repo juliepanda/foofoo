@@ -20364,28 +20364,56 @@ module.exports = function(arr, fn, initial){
   return curr;
 };
 },{}],162:[function(require,module,exports){
-"use strict";
+'use strict';
 
 /* jshint esnext:true */
 var React = require('react');
 
 var Header = React.createClass({
-	displayName: "Header",
+	displayName: 'Header',
 
+	getInitialState: function getInitialState() {
+		var logged = localStorage.getItem('foofoologged');
+		return {
+			logged: logged
+		};
+	},
+	_onLogout: function _onLogout() {
+		localStorage.removeItem('foofoologged');
+		location.reload();
+	},
+	componentWillMount: function componentWillMount() {
+		var logged = localStorage.getItem('foofoologged');
+		this.setState({ logged: logged });
+	},
 	render: function render() {
+		var logoutBtn = null;
+		console.log(this.state.logged);
+		if (this.state.logged) {
+			logoutBtn = React.createElement(
+				'div',
+				{ className: 'logout' },
+				React.createElement(
+					'button',
+					{ className: 'button', onClick: this._onLogout },
+					'Logout'
+				)
+			);
+		}
 		return React.createElement(
-			"div",
-			{ className: "row header" },
+			'div',
+			{ className: 'header' },
 			React.createElement(
-				"span",
-				{ className: "big-title" },
-				"FooFoo Space"
+				'span',
+				{ className: 'big-title' },
+				'FooFoo Space'
 			),
 			React.createElement(
-				"span",
-				{ className: "subtitle" },
-				"Marketplace to trade your campus meal swipes!"
-			)
+				'span',
+				{ className: 'subtitle' },
+				'Marketplace to trade your campus meal swipes!'
+			),
+			logoutBtn
 		);
 	}
 });
@@ -20417,13 +20445,6 @@ var LoginPage = React.createClass({
 		e.preventDefault();
 		var str = e.target.value;
 		this.setState({ password: str });
-	},
-	componentWillMount: function componentWillMount() {
-		request.get('http://127.0.0.1:5000/api/people').accept('application/json').end(function (err, res) {
-			if (res.status === 200) {
-				console.log(res.text);
-			}
-		});
 	},
 	render: function render() {
 		return React.createElement(
@@ -20545,11 +20566,13 @@ var BuyPage = React.createClass({
 	displayName: 'BuyPage',
 
 	getInitialState: function getInitialState() {
+		var logged = localStorage.getItem('foofoologged');
 		return {
 			price: 0,
 			nNumber: '',
 			netId: '',
-			name: ''
+			name: '',
+			logged: logged
 		};
 	},
 	_handlePriceOnChange: function _handlePriceOnChange(e) {
@@ -20574,13 +20597,58 @@ var BuyPage = React.createClass({
 		if (str.length > 8) console.log(false);else this.setState({ netid: str });
 	},
 	componentWillMount: function componentWillMount() {
-		request.get('http://127.0.0.1:5000/api/people').accept('application/json').end(function (err, res) {
-			if (res.status === 200) {
-				console.log(res.text);
-			}
-		});
+		var logged = localStorage.getItem('foofoologged');
+		console.log(logged);
+		this.setState({ logged: logged });
+		// request
+		// .get('http://127.0.0.1:5000/api/people')
+		// .accept('application/json')
+		// .end( function(err, res){
+		// 	if (res.status === 200) {
+		// 		console.log(res.text);
+		// 	}
+		// });
 	},
 	render: function render() {
+		var extraQ = null;
+		if (this.state.logged) {
+			extraQ = null;
+		} else {
+			extraQ = React.createElement(
+				'div',
+				{ className: 'second-set-inputs' },
+				React.createElement(
+					'div',
+					{ className: 'inputset' },
+					React.createElement(
+						'label',
+						null,
+						'N-number: '
+					),
+					React.createElement('input', { type: 'text', onChange: this._handleNNumberOnChange })
+				),
+				React.createElement(
+					'div',
+					{ className: 'inputset' },
+					React.createElement(
+						'label',
+						null,
+						'net id: '
+					),
+					React.createElement('input', { type: 'text', onChange: this._handleNetIdChange })
+				),
+				React.createElement(
+					'div',
+					{ className: 'inputset' },
+					React.createElement(
+						'label',
+						null,
+						'Name: '
+					),
+					React.createElement('input', { type: 'text', onChange: this._handleNameChange })
+				)
+			);
+		}
 		return React.createElement(
 			'div',
 			null,
@@ -20619,41 +20687,8 @@ var BuyPage = React.createClass({
 							React.createElement('input', { type: 'number', min: '1', max: '5' })
 						)
 					),
-					React.createElement('br', null),
-					React.createElement(
-						'div',
-						{ className: 'second-set-inputs' },
-						React.createElement(
-							'div',
-							{ className: 'inputset' },
-							React.createElement(
-								'label',
-								null,
-								'N-number: '
-							),
-							React.createElement('input', { type: 'text', onChange: this._handleNNumberOnChange })
-						),
-						React.createElement(
-							'div',
-							{ className: 'inputset' },
-							React.createElement(
-								'label',
-								null,
-								'net id: '
-							),
-							React.createElement('input', { type: 'text', onChange: this._handleNetIdChange })
-						),
-						React.createElement(
-							'div',
-							{ className: 'inputset' },
-							React.createElement(
-								'label',
-								null,
-								'Name: '
-							),
-							React.createElement('input', { type: 'text', onChange: this._handleNameChange })
-						)
-					)
+					extraQ,
+					React.createElement('br', null)
 				),
 				React.createElement(
 					'button',
@@ -20683,10 +20718,14 @@ var App = React.createClass({
 	displayName: 'App',
 
 	getInitialState: function getInitialState() {
+		var logged = localStorage.getItem('foofoologged');
+
 		return {
 			saleIntent: false,
 			loginIntent: false,
-			loggedIn: false
+			loggedIn: logged,
+			userData: {},
+			failedLogin: false
 		};
 	},
 	_handleSale: function _handleSale() {
@@ -20700,10 +20739,15 @@ var App = React.createClass({
 		});
 	},
 	_handleLoginClick: function _handleLoginClick(netid, password) {
-		console.log(netid, password);
 		request.post('http://127.0.0.1:5000/api/login').send({ 'netid': netid, 'password': password }).end(function (err, res) {
 			if (res.status === 200) {
-				console.log(res.text);
+				var js = JSON.parse(res.text)['data'];
+				localStorage.setItem('foofoologged', true);
+				location.reload();
+			} else {
+				this.setState({
+					failedLogin: true
+				});
 			}
 		});
 	},

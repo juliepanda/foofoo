@@ -9,17 +9,25 @@
 
 /* HEADER */
 .header {
-	display: inline-block;
+	display: inline-flex;
+	flex-wrap: wrap;
 	padding: 30px;
 }
 
 .big-title {
 	font-size: 3em;
+	align-self: baseline;
 }
 
 .subtitle {
 	padding: 10px;
+	align-self: baseline;
 	font-size: 1.3em;
+}
+
+.logout {
+	align-self: baseline;
+	margin-right: auto;
 }
 
 /* JUMBOTRON */
