@@ -139,6 +139,7 @@ def find_best_buy(post_id):
     price = us['data']['attributes']['price']
     date = us['data']['attributes']['expired_by']
     locations = us['data']['attributes']['locations']
+    seller = us['links']['seller']['_id']
     used_map = {}
     for location in locations:
         res = db.buy_posts.find( {"data.attributes.locations": location, "data.attributes.expired_by": {"$gte": date }})
@@ -206,6 +207,7 @@ def find_best_sell(post_id):
     price = us['data']['attributes']['price']
     date = us['data']['attributes']['expired_by']
     locations = us['data']['attributes']['locations']
+    buyer = us['links']['buyer']['_id']
     used_map = {}
     for location in locations:
         res = db.sell_posts.find( {"data.attributes.locations": location, "data.attributes.expired_by": {"$gte": date }})

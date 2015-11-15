@@ -7,17 +7,42 @@ let TickerPanel = React.createClass({
 		return {
 			diningList: ['WEINSTEIN', 'KIMMEL', 'HAYDEN', 'RUBIN', 'PALLADIUM', 'THIRD-NORTH', 'U-HALL'],
 			diningChecked: {},
-			logged: false
+			logged: false,
+			allBuys: [],
+			allSells: [],
+			_id: ''
 		};
 	},
 	componentWillMount: function() {
 		let logged = localStorage.getItem('foofoologged');
-		this.setState({logged: logged});
+		let _id = localStorage.getItem('_id');
+		this.setState({logged: logged, _id: _id});
 		this.state.diningList.map((hall) => {
 			this.state.diningChecked[hall] =  {
 				checked: false,
-				value: hall
+				value: hall,
 			};
+		});
+
+	},
+	componentDidMount: function() {
+		request
+		.get('http://127.0.0.1:5000/api/sell_posts')
+		.end( (err, res) => {
+			if (res.status === 200) {
+				let js = JSON.parse(res.text);
+				this.setState({allSells: js});
+			}
+		});
+	
+		request
+		.get('http://127.0.0.1:5000/api/buy_posts')
+		.end( (err, res) => {
+			if (res.status === 200) {
+				let js = JSON.parse(res.text);
+				console.log(js);
+				this.setState({allBuys: js});
+			}
 		});
 	
 	},
@@ -28,6 +53,7 @@ let TickerPanel = React.createClass({
 		this.setState({
 			diningChecked: upd
 		});
+
 	},
 	render: function() {
 		let diningSet = this.state.diningList.map( (hall, i) => {
@@ -37,7 +63,60 @@ let TickerPanel = React.createClass({
 					<input type="checkbox" key={i} checked={checker} value={hall} onChange={this._toggleCheckbox.bind(this, i)} /><span>{hall}</span>
 				</div>
 			)
-		});
+		})
+		;
+		let clickedDining = [];
+		 for (let i = 0; i < this.state.diningList.length; i++) {
+			 let hall = this.state.diningList[i];
+			if (this.state.diningChecked[hall]['checked'] === true) clickedDining.push(hall);
+		 }
+
+		 let finalBuys = [];
+		 if (this.state.allBuys.length > 0) {
+		 	finalBuys = this.state.allBuys.filter((buy) => {
+				let locations = buy['data']['attributes']['locations'];
+				for (let i = 0; i < locations.length; i++) {
+					if (this.state.diningChecked[locations[i]]['checked'] === true && this.state._id != buy['links']['buyer']['_id']) return true;
+				}
+			});
+		 }
+		 let finalSells = [];
+		 if (this.state.allSells.length > 0) {
+		 	finalSells = this.state.allSells.filter((sell) => {
+				let locations = sell['data']['attributes']['locations'];
+				for (let i = 0; i < locations.length; i++) {
+					if (this.state.diningChecked[locations[i]]['checked'] === true && this.state._id != sell['links']['seller']['_id']) return true;
+				}
+			});
+		 }
+
+		 let buyrows = null;
+		 if (finalBuys.length > 0) {
+		 	buyrows = finalBuys.map((buy) => {
+				return (
+					<tr>
+						<td>{Date(buy['data']['attributes']['expired_by']['$date'])}</td>
+						<td>{buy['data']['attributes']['price']}</td>
+						<td><button>Connect</button></td>
+					</tr>
+				);
+			});
+		 }
+		 
+		 let sellrows = null;
+		 if (finalSells.length > 0) {
+		 	sellrows = finalSells.map((sell) => {
+				return (
+					<tr>
+						<td>{Date(sell['data']['attributes']['expired_by']['$date'])}</td>
+						<td>{sell['data']['attributes']['price']}</td>
+						<td><button>Connect</button></td>
+					</tr>
+				);
+			});
+		 }
+
+		 
 		return (
 			<div className="row">
 				<div className="twelve columns control">
@@ -48,29 +127,31 @@ let TickerPanel = React.createClass({
 						<table className="u-full-width">
 						  <thead>
 							<tr>
-							  <th>Name</th>
-							  <th>Age</th>
-							  <th>Sex</th>
-							  <th>Location</th>
+							  <th>Expiration</th>
+							  <th>Price</th>
+							  <th>Sell</th>
 							</tr>
 						  </thead>
 						  <tbody>
-							<tr>
-							  <td>Dave Gamache</td>
-							  <td>26</td>
-							  <td>Male</td>
-							  <td>San Francisco</td>
-							</tr>
-							<tr>
-							  <td>Dwayne Johnson</td>
-							  <td>42</td>
-							  <td>Male</td>
-							  <td>Hayward</td>
-							</tr>
+						  {buyrows}
 						  </tbody>
 						</table>
 						</div>
-						<div className="six columns right-ticker"></div>
+						<div className="six columns right-ticker">
+						<table className="u-full-width">
+						  <thead>
+							<tr>
+							  <th>Expiration</th>
+							  <th>Price</th>
+							  <th>Buy</th>
+							</tr>
+						  </thead>
+						  <tbody>
+						  {sellrows}
+						  </tbody>
+						</table>
+						
+						</div>
 					</div>
 
 			</div>

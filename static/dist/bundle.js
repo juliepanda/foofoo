@@ -20858,19 +20858,41 @@ var TickerPanel = React.createClass({
 		return {
 			diningList: ['WEINSTEIN', 'KIMMEL', 'HAYDEN', 'RUBIN', 'PALLADIUM', 'THIRD-NORTH', 'U-HALL'],
 			diningChecked: {},
-			logged: false
+			logged: false,
+			allBuys: [],
+			allSells: [],
+			_id: ''
 		};
 	},
 	componentWillMount: function componentWillMount() {
 		var _this = this;
 
 		var logged = localStorage.getItem('foofoologged');
-		this.setState({ logged: logged });
+		var _id = localStorage.getItem('_id');
+		this.setState({ logged: logged, _id: _id });
 		this.state.diningList.map(function (hall) {
 			_this.state.diningChecked[hall] = {
 				checked: false,
 				value: hall
 			};
+		});
+	},
+	componentDidMount: function componentDidMount() {
+		var _this2 = this;
+
+		request.get('http://127.0.0.1:5000/api/sell_posts').end(function (err, res) {
+			if (res.status === 200) {
+				var js = JSON.parse(res.text);
+				_this2.setState({ allSells: js });
+			}
+		});
+
+		request.get('http://127.0.0.1:5000/api/buy_posts').end(function (err, res) {
+			if (res.status === 200) {
+				var js = JSON.parse(res.text);
+				console.log(js);
+				_this2.setState({ allBuys: js });
+			}
 		});
 	},
 	_toggleCheckbox: function _toggleCheckbox(i) {
@@ -20882,14 +20904,14 @@ var TickerPanel = React.createClass({
 		});
 	},
 	render: function render() {
-		var _this2 = this;
+		var _this3 = this;
 
 		var diningSet = this.state.diningList.map(function (hall, i) {
-			var checker = _this2.state.diningChecked[hall]['checked'];
+			var checker = _this3.state.diningChecked[hall]['checked'];
 			return React.createElement(
 				'div',
 				{ className: 'ticker-checkbox-set' },
-				React.createElement('input', { type: 'checkbox', key: i, checked: checker, value: hall, onChange: _this2._toggleCheckbox.bind(_this2, i) }),
+				React.createElement('input', { type: 'checkbox', key: i, checked: checker, value: hall, onChange: _this3._toggleCheckbox.bind(_this3, i) }),
 				React.createElement(
 					'span',
 					null,
@@ -20897,6 +20919,89 @@ var TickerPanel = React.createClass({
 				)
 			);
 		});
+		var clickedDining = [];
+		for (var i = 0; i < this.state.diningList.length; i++) {
+			var hall = this.state.diningList[i];
+			if (this.state.diningChecked[hall]['checked'] === true) clickedDining.push(hall);
+		}
+
+		var finalBuys = [];
+		if (this.state.allBuys.length > 0) {
+			finalBuys = this.state.allBuys.filter(function (buy) {
+				var locations = buy['data']['attributes']['locations'];
+				for (var i = 0; i < locations.length; i++) {
+					if (_this3.state.diningChecked[locations[i]]['checked'] === true && _this3.state._id != buy['links']['buyer']['_id']) return true;
+				}
+			});
+		}
+		var finalSells = [];
+		if (this.state.allSells.length > 0) {
+			finalSells = this.state.allSells.filter(function (sell) {
+				var locations = sell['data']['attributes']['locations'];
+				for (var i = 0; i < locations.length; i++) {
+					if (_this3.state.diningChecked[locations[i]]['checked'] === true && _this3.state._id != sell['links']['seller']['_id']) return true;
+				}
+			});
+		}
+
+		var buyrows = null;
+		if (finalBuys.length > 0) {
+			buyrows = finalBuys.map(function (buy) {
+				return React.createElement(
+					'tr',
+					null,
+					React.createElement(
+						'td',
+						null,
+						Date(buy['data']['attributes']['expired_by']['$date'])
+					),
+					React.createElement(
+						'td',
+						null,
+						buy['data']['attributes']['price']
+					),
+					React.createElement(
+						'td',
+						null,
+						React.createElement(
+							'button',
+							null,
+							'Connect'
+						)
+					)
+				);
+			});
+		}
+
+		var sellrows = null;
+		if (finalSells.length > 0) {
+			sellrows = finalSells.map(function (sell) {
+				return React.createElement(
+					'tr',
+					null,
+					React.createElement(
+						'td',
+						null,
+						Date(sell['data']['attributes']['expired_by']['$date'])
+					),
+					React.createElement(
+						'td',
+						null,
+						sell['data']['attributes']['price']
+					),
+					React.createElement(
+						'td',
+						null,
+						React.createElement(
+							'button',
+							null,
+							'Connect'
+						)
+					)
+				);
+			});
+		}
+
 		return React.createElement(
 			'div',
 			{ className: 'row' },
@@ -20923,80 +21028,63 @@ var TickerPanel = React.createClass({
 								React.createElement(
 									'th',
 									null,
-									'Name'
+									'Expiration'
 								),
 								React.createElement(
 									'th',
 									null,
-									'Age'
+									'Price'
 								),
 								React.createElement(
 									'th',
 									null,
-									'Sex'
-								),
-								React.createElement(
-									'th',
-									null,
-									'Location'
+									'Sell'
 								)
 							)
 						),
 						React.createElement(
 							'tbody',
 							null,
-							React.createElement(
-								'tr',
-								null,
-								React.createElement(
-									'td',
-									null,
-									'Dave Gamache'
-								),
-								React.createElement(
-									'td',
-									null,
-									'26'
-								),
-								React.createElement(
-									'td',
-									null,
-									'Male'
-								),
-								React.createElement(
-									'td',
-									null,
-									'San Francisco'
-								)
-							),
-							React.createElement(
-								'tr',
-								null,
-								React.createElement(
-									'td',
-									null,
-									'Dwayne Johnson'
-								),
-								React.createElement(
-									'td',
-									null,
-									'42'
-								),
-								React.createElement(
-									'td',
-									null,
-									'Male'
-								),
-								React.createElement(
-									'td',
-									null,
-									'Hayward'
-								)
-							)
+							buyrows
 						)
 					)
 				),
-				React.createElement('div', { className: 'six columns right-ticker' })
+				React.createElement(
+					'div',
+					{ className: 'six columns right-ticker' },
+					React.createElement(
+						'table',
+						{ className: 'u-full-width' },
+						React.createElement(
+							'thead',
+							null,
+							React.createElement(
+								'tr',
+								null,
+								React.createElement(
+									'th',
+									null,
+									'Expiration'
+								),
+								React.createElement(
+									'th',
+									null,
+									'Price'
+								),
+								React.createElement(
+									'th',
+									null,
+									'Buy'
+								)
+							)
+						),
+						React.createElement(
+							'tbody',
+							null,
+							sellrows
+						)
+					)
+				)
 			)
 		);
 	}
