@@ -5,7 +5,7 @@ let request = require('superagent');
 let Test = React.createClass({
 	componentWillMount: function() {
 		request
-		.get('http://127.0.0.1:5000/api/users')
+		.get('http://127.0.0.1:5000/api/people')
 		.accept('application/json')
 		.end( function(err, res){
 			if (res.status === 200) {

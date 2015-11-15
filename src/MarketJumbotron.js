@@ -10,7 +10,7 @@ let MarketJumbotron = React.createClass({
 	},
 	componentWillMount: function() {
 		request
-		.get('http://127.0.0.1:5000/api/users')
+		.get('http://127.0.0.1:5000/api/sell_posts')
 		.accept('application/json')
 		.end( function(err, res){
 			if (res.status === 200) {
@@ -20,7 +20,7 @@ let MarketJumbotron = React.createClass({
 	},
 	render: function() {
 		return (
-			<div>
+			<div className="row">
 				<div>
 					<p>Last meal bought at: <span>{this.state.recentPrice}</span></p>
 				</div>

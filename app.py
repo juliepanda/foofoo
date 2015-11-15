@@ -38,6 +38,7 @@ def people():
 
 
 @app.route('/api/people/<person_id>', methods=['GET', 'PATCH', 'OPTIONS'])
+@crossdomain(origin='*')
 def person(person_id):
     if request.method == 'GET':
         result = db['people'].find_one({'_id': ObjectId(person_id)})
@@ -68,6 +69,7 @@ def person(person_id):
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 @app.route('/api/sell_posts', methods=['GET', 'POST', 'OPTIONS'])
+@crossdomain(origin='*')
 def sell_posts():
     if request.method == 'GET':
         results = db['sell_posts'].find()
@@ -88,6 +90,7 @@ def sell_posts():
             diff = datetime.timedelta(days=offset)
             expired_by = now + diff
             js['data']['attributes']['expired_by'] = expired_by
+            js['data']['attributes']['fulfilled'] = False
             if js['data']['attributes']['price'] != None and js['data']['attributes']['expired_by'] != None and len(js['data']['attributes']['locations']) > 0 and js['data']['type'] == 'sell_posts':
                 res = db['sell_posts'].insert(js)
                 post_id = json.loads(toJson(res))['$oid']
@@ -100,6 +103,7 @@ def sell_posts():
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 @app.route('/api/sell_posts/<post_id>', methods=['GET', 'DELETE'])
+@crossdomain(origin='*')
 def sell_post(post_id):
     if request.method == 'GET':
         result = db['sell_posts'].find_one({'_id': ObjectId(post_id)})
@@ -112,6 +116,7 @@ def sell_post(post_id):
 
 
 @app.route('/api/buy_posts', methods=['GET', 'POST', 'OPTIONS'])
+@crossdomain(origin='*')
 def buy_posts():
     if request.method == 'GET':
         results = db['buy_posts'].find()
@@ -132,6 +137,7 @@ def buy_posts():
             diff = datetime.timedelta(days=offset)
             expired_by = now + diff
             js['data']['attributes']['expired_by'] = expired_by
+            js['data']['attributes']['fulfilled'] = False
             print js['data']['type']
             if js['data']['attributes']['price'] != None and js['data']['attributes']['expired_by'] != None and len(js['data']['attributes']['locations']) > 0 and js['data']['type'] == 'buy_posts':
                 res = db['buy_posts'].insert(js)
@@ -144,7 +150,8 @@ def buy_posts():
     else:
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
-@app.route('/api/buy_posts/<post_id>', methods=['GET'])
+@app.route('/api/buy_posts/<post_id>', methods=['GET', 'DELETE'])
+@crossdomain(origin='*')
 def buy_post(post_id):
     if request.method == 'GET':
         result = db['buy_posts'].find_one({'_id': ObjectId(post_id)})

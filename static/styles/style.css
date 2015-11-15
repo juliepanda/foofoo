@@ -1,3 +1,18 @@
+/* UTILITIES */
+.center {
+	text-align: center;
+}
 
+/* HEADER */
+.header {
+	display: inline-block;
+}
 
-/*# sourceMappingURL=style.css.map */
+.big-title {
+	font-size: 3em;
+}
+
+.subtitle {
+	padding: 10px;
+	font-size: 1.3em;
+}

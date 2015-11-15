@@ -34,7 +34,7 @@ let BuyPage = React.createClass({
 	render: function() {
 		return (
 			<div>
-			<h1>BuyPage</h1>
+				<span>Buy</span>
 				<div>
 					<span>Buy Price: </span><input type="text" onChange={this._handlePriceOnChange} />
 					<span>Quantity: </span><input type="number" min="1" max="5" />

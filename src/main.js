@@ -1,12 +1,10 @@
 /* jshint esnext: true */
 let React = require('react'),
 	ReactDOM = require('react-dom'),
-	Test = require('./Test'),
 	Header = require('./Header'),
 	MarketJumbotron = require('./MarketJumbotron'),
 	BuyPage = require('./BuyPage'),
-	SellPage = require('./SellPage'),
-	injectTapEventPlugin = require("react-tap-event-plugin");
+	SellPage = require('./SellPage');
 
 var App = React.createClass({
 	getInitialState: function() {
@@ -30,12 +28,9 @@ var App = React.createClass({
 	render: function() {
 		let jumbotron = ((!this.state.buyIntent && !this.state.sellIntent) ? <MarketJumbotron _handleSell={this._handleSell} _handleBuy={this._handleBuy} /> : (this.state.buyIntent) ? <BuyPage /> : <SellPage />)
 		return (
-			<div>
-				<h1>FooFoo Space</h1>
+			<div className="main-container center">
 				<Header />
-				<Test />
 				{jumbotron}
-
 			</div>
 		)
 	}
