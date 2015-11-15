@@ -20576,15 +20576,19 @@ var BuyPage = React.createClass({
 
 	getInitialState: function getInitialState() {
 		var logged = localStorage.getItem('foofoologged');
+		var _id = localStorage.getItem('_id');
 
 		return {
+			_id: _id,
 			diningList: ['WEINSTEIN', 'KIMMEL', 'HAYDEN', 'RUBIN', 'PALLADIUM', 'THIRD-NORTH', 'U-HALL'],
 			diningChecked: {},
 			price: 0,
 			nNumber: '',
 			netId: '',
 			name: '',
-			logged: logged
+			logged: logged,
+			expire_in: 0,
+			qty: 0
 		};
 	},
 	_handlePriceOnChange: function _handlePriceOnChange(e) {
@@ -20608,37 +20612,74 @@ var BuyPage = React.createClass({
 		var str = e.target.value;
 		if (str.length > 8) console.log(false);else this.setState({ netid: str });
 	},
+	_handleExpiration: function _handleExpiration(e) {
+		e.preventDefault();
+		this.setState({ expire_in: parseInt(e.target.value) });
+	},
+	_handleQuantity: function _handleQuantity(e) {
+		e.preventDefault();
+		this.setState({ qty: parseInt(e.target.value) });
+	},
 	_handleBuy: function _handleBuy() {
+		var _this = this;
+
+		var locations = this.state.diningList.filter(function (hall) {
+			return _this.state.diningChecked[hall]['checked'] ? true : false;
+		});
+		var json = {
+			data: {
+				type: "buy_posts",
+				attributes: {
+					price: this.state.price,
+					locations: locations,
+					days_until_expiration: this.state.expire_in,
+					quantity: this.state.qty
+				}
+			},
+			links: {
+				buyer: {
+					type: "people",
+					_id: this.state._id
+				},
+				seller: {}
+			}
+		};
+		request.post('http://127.0.0.1:5000/api/buy_posts').send(json).end(function (err, res) {
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+	},
+	_handleSell: function _handleSell() {
+		var _this2 = this;
+
+		var locations = this.state.diningList.filter(function (hall) {
+			return _this2.state.diningChecked[hall]['checked'] ? true : false;
+		});
 		var json = {
 			data: {
 				type: "sell_posts",
 				attributes: {
-					price: 5.00,
-					locations: ["WEINSTEIN", "RUBIN", "KIMMEL"],
-					days_until_expiration: 10
+					price: this.state.price,
+					locations: locations,
+					days_until_expiration: this.state.expire_in,
+					quantity: this.state.qty
 				}
 			},
 			links: {
 				seller: {
 					type: "people",
-					_id: "5647beede78cd5931a01d917"
+					_id: this.state._id
 				},
 				buyer: {}
 			}
 		};
-		request.post('http://127.0.0.1:5000/api/buy_posts').send({ 'netid': netid, 'password': password }).end(function (err, res) {
+		request.post('http://127.0.0.1:5000/api/sell_posts').send(json).end(function (err, res) {
 			if (res.status === 200) {
-				var js = JSON.parse(res.text)['data'];
-				localStorage.setItem('foofoologged', true);
-				location.reload();
-			} else {
-				this.setState({
-					failedLogin: true
-				});
+				console.log(res.text);
 			}
 		});
 	},
-	_handleSell: function _handleSell() {},
 	_toggleCheckbox: function _toggleCheckbox(i) {
 		var hall = this.state.diningList[i];
 		var upd = this.state.diningChecked;
@@ -20648,26 +20689,26 @@ var BuyPage = React.createClass({
 		});
 	},
 	componentWillMount: function componentWillMount() {
-		var _this = this;
+		var _this3 = this;
 
 		var logged = localStorage.getItem('foofoologged');
 		this.setState({ logged: logged });
 		this.state.diningList.map(function (hall) {
-			_this.state.diningChecked[hall] = {
+			_this3.state.diningChecked[hall] = {
 				checked: false,
 				value: hall
 			};
 		});
 	},
 	render: function render() {
-		var _this2 = this;
+		var _this4 = this;
 
 		var diningSet = this.state.diningList.map(function (hall, i) {
-			var checker = _this2.state.diningChecked[hall]['checked'];
+			var checker = _this4.state.diningChecked[hall]['checked'];
 			return React.createElement(
 				'div',
 				null,
-				React.createElement('input', { type: 'checkbox', key: i, checked: checker, value: hall, onChange: _this2._toggleCheckbox.bind(_this2, i) }),
+				React.createElement('input', { type: 'checkbox', key: i, checked: checker, value: hall, onChange: _this4._toggleCheckbox.bind(_this4, i) }),
 				React.createElement(
 					'span',
 					null,
@@ -20719,76 +20760,72 @@ var BuyPage = React.createClass({
 			'div',
 			null,
 			React.createElement(
-				'form',
+				'div',
 				null,
+				React.createElement(
+					'div',
+					{ className: 'first-set-inputs' },
+					React.createElement(
+						'div',
+						{ className: 'inputset' },
+						React.createElement(
+							'label',
+							null,
+							'Buy Price: '
+						),
+						React.createElement('input', { type: 'text', onChange: this._handlePriceOnChange })
+					),
+					React.createElement(
+						'div',
+						{ className: 'inputset' },
+						React.createElement(
+							'label',
+							null,
+							'Quantity: '
+						),
+						React.createElement('input', { type: 'number', min: '1', max: '5', onChange: this._handleQuantity })
+					),
+					React.createElement(
+						'div',
+						{ className: 'inputset' },
+						React.createElement(
+							'label',
+							null,
+							'Offer expire in (days): '
+						),
+						React.createElement('input', { type: 'number', min: '1', max: '10', onChange: this._handleExpiration })
+					)
+				),
 				React.createElement(
 					'div',
 					null,
 					React.createElement(
 						'div',
-						{ className: 'first-set-inputs' },
+						{ className: 'inputset' },
 						React.createElement(
-							'div',
-							{ className: 'inputset' },
-							React.createElement(
-								'label',
-								null,
-								'Buy Price: '
-							),
-							React.createElement('input', { type: 'text', onChange: this._handlePriceOnChange })
+							'label',
+							null,
+							'Dining Halls (1 or many): '
 						),
 						React.createElement(
-							'div',
-							{ className: 'inputset' },
-							React.createElement(
-								'label',
-								null,
-								'Quantity: '
-							),
-							React.createElement('input', { type: 'number', min: '1', max: '5' })
-						),
-						React.createElement(
-							'div',
-							{ className: 'inputset' },
-							React.createElement(
-								'label',
-								null,
-								'Offer expire in (days): '
-							),
-							React.createElement('input', { type: 'number', min: '1', max: '10' })
+							'fieldset',
+							null,
+							diningSet
 						)
-					),
-					React.createElement(
-						'div',
-						null,
-						React.createElement(
-							'div',
-							{ className: 'inputset' },
-							React.createElement(
-								'label',
-								null,
-								'Dining Halls (1 or many): '
-							),
-							React.createElement(
-								'fieldset',
-								null,
-								diningSet
-							)
-						)
-					),
-					extraQ,
-					React.createElement('br', null)
+					)
 				),
-				React.createElement(
-					'button',
-					{ className: 'button', onClick: this._handleBuy },
-					'Buy'
-				),
-				React.createElement(
-					'button',
-					{ className: 'button', onClick: this._handleSell },
-					'Sell'
-				)
+				extraQ,
+				React.createElement('br', null)
+			),
+			React.createElement(
+				'button',
+				{ className: 'button', onClick: this._handleBuy },
+				'Buy'
+			),
+			React.createElement(
+				'button',
+				{ className: 'button', onClick: this._handleSell },
+				'Sell'
 			)
 		);
 	}
@@ -20835,8 +20872,9 @@ var App = React.createClass({
 	_handleLoginClick: function _handleLoginClick(netid, password) {
 		request.post('http://127.0.0.1:5000/api/login').send({ 'netid': netid, 'password': password }).end(function (err, res) {
 			if (res.status === 200) {
-				var js = JSON.parse(res.text)['data'];
+				var _id = JSON.parse(res.text)['_id']['$oid'];
 				localStorage.setItem('foofoologged', true);
+				localStorage.setItem('_id', _id);
 				location.reload();
 			} else {
 				this.setState({

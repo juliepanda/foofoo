@@ -35,8 +35,9 @@ var App = React.createClass({
 		.send({'netid': netid, 'password': password })
 		.end( function(err, res){
 			if (res.status === 200) {
-				let js = JSON.parse(res.text)['data'];
+				let _id = JSON.parse(res.text)['_id']['$oid'];
 				localStorage.setItem('foofoologged', true);
+				localStorage.setItem('_id', _id);
 				location.reload();
 			} else {
 				this.setState({

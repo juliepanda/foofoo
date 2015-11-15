@@ -5,15 +5,19 @@ let request = require('superagent');
 let BuyPage = React.createClass({
 	getInitialState: function() {
 		let logged = localStorage.getItem('foofoologged');
+		let _id = localStorage.getItem('_id');
 
 		return {
+			_id: _id,
 			diningList: ['WEINSTEIN', 'KIMMEL', 'HAYDEN', 'RUBIN', 'PALLADIUM', 'THIRD-NORTH', 'U-HALL'],
 			diningChecked: {},
 			price: 0,
 			nNumber: '',
 			netId: '',
 			name: '',
-			logged: logged
+			logged: logged,
+			expire_in: 0,
+			qty: 0
 		};
 	},
 	_handlePriceOnChange: function(e) {
@@ -39,45 +43,78 @@ let BuyPage = React.createClass({
 		if (str.length > 8) console.log(false);
 		else this.setState({netid: str});
 	},
+	_handleExpiration: function(e) {
+		e.preventDefault();
+		this.setState({ expire_in: parseInt(e.target.value)});
+	},
+	_handleQuantity: function (e) {
+		e.preventDefault();
+		this.setState({ qty: parseInt(e.target.value)});
+	
+	},
 	_handleBuy: function() {
+		let locations = this.state.diningList.filter( (hall) => {
+			return (this.state.diningChecked[hall]['checked']) ? true: false;
+		});
 		let json = {
 			data: {
-				type: "sell_posts",
+				type: "buy_posts",
 				attributes: {
-					price: 5.00,
-					locations: [
-						"WEINSTEIN",
-						"RUBIN",
-						"KIMMEL"
-					],
-					days_until_expiration: 10
+					price: this.state.price,
+					locations: locations,
+					days_until_expiration: this.state.expire_in,
+					quantity: this.state.qty
 				}
 			},
 			links: {
-				seller: {
+				buyer: {
 					type: "people",
-					_id: "5647beede78cd5931a01d917"
+					_id: this.state._id
 				},
-				buyer: {}
+				seller: {}
 			}
 		};
 		request
 		.post('http://127.0.0.1:5000/api/buy_posts')
-		.send({'netid': netid, 'password': password })
+		.send(json)
 		.end( function(err, res){
 			if (res.status === 200) {
-				let js = JSON.parse(res.text)['data'];
-				localStorage.setItem('foofoologged', true);
-				location.reload();
-			} else {
-				this.setState({
-					failedLogin: true
-				});
+				console.log(res.text);
 			}
 		});
 
 	},
 	_handleSell: function() {
+		let locations = this.state.diningList.filter( (hall) => {
+			return (this.state.diningChecked[hall]['checked']) ? true: false;
+		});
+		let json = {
+			data: {
+				type: "sell_posts",
+				attributes: {
+					price: this.state.price,
+					locations: locations,
+					days_until_expiration: this.state.expire_in,
+					quantity: this.state.qty
+				}
+			},
+			links: {
+				seller: {
+					type: "people",
+					_id: this.state._id
+				},
+				buyer: {}
+			}
+		};
+		request
+		.post('http://127.0.0.1:5000/api/sell_posts')
+		.send(json)
+		.end( function(err, res){
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+
 
 	},
 	_toggleCheckbox: function(i) {
@@ -128,33 +165,31 @@ let BuyPage = React.createClass({
 		}
 		return (
 			<div>
-				<form>
-					<div>
-					<div className="first-set-inputs">
-						<div className="inputset">
-							<label>Buy Price: </label><input type="text" onChange={this._handlePriceOnChange} />
-						</div>
-						<div className="inputset">
-							<label>Quantity: </label><input type="number" min="1" max="5" />
-						</div>
-						<div className="inputset">
-							<label>Offer expire in (days): </label><input type="number" min="1" max="10" />
-						</div>
+				<div>
+				<div className="first-set-inputs">
+					<div className="inputset">
+						<label>Buy Price: </label><input type="text" onChange={this._handlePriceOnChange} />
 					</div>
-					<div>
-						<div className="inputset">
-							<label>Dining Halls (1 or many): </label>
-							<fieldset>
-							{diningSet}
-							</fieldset>
-						</div>
+					<div className="inputset">
+						<label>Quantity: </label><input type="number" min="1" max="5" onChange={this._handleQuantity} />
 					</div>
-					{extraQ}
-					<br />
+					<div className="inputset">
+						<label>Offer expire in (days): </label><input type="number" min="1" max="10" onChange={this._handleExpiration} />
 					</div>
-					<button className="button" onClick={this._handleBuy}>Buy</button>
-					<button className="button" onClick={this._handleSell}>Sell</button>
-				</form>
+				</div>
+				<div>
+					<div className="inputset">
+						<label>Dining Halls (1 or many): </label>
+						<fieldset>
+						{diningSet}
+						</fieldset>
+					</div>
+				</div>
+				{extraQ}
+				<br />
+				</div>
+				<button className="button" onClick={this._handleBuy}>Buy</button>
+				<button className="button" onClick={this._handleSell}>Sell</button>
 			</div>
 		)
 	}
