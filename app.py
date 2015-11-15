@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, Response
-import json
+import json, datetime
 from bson import json_util
 from bson.objectid import ObjectId
 from pymongo import Connection
@@ -26,7 +26,6 @@ def people():
     
     elif request.method == 'POST':
         js = request.json
-        # should add validation step here
         netid = js['data']['attributes']['netid']
         res = db['people'].find_one({"data.attributes.netid": netid })
         if res == None:
@@ -35,7 +34,7 @@ def people():
         else:
             return Response(json.dumps({"error": "person already exists"}), status=400, mimetype='application/json')
     else:
-        return 404
+        return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 
 @app.route('/api/people/<person_id>', methods=['GET', 'PATCH', 'OPTIONS'])
@@ -43,9 +42,32 @@ def get_person(person_id):
     if request.method == 'GET':
         result = db['people'].find_one({'_id': ObjectId(person_id)})
         return Response(toJson(result), status=200, mimetype='application/json')
-    return 404
+    if request.method == 'PATCH':
+        js = request.json
+        result = db['people'].find_one({'_id': ObjectId(person_id)})
+        if result == None:
+            return Response(json.dumps({"error": "person_id doesn't exist"}), status=400, mimetype='application/json')
+        else:
+            result = toJson(result)
+            # add attributes
+            try:
+                attributes = js['data']['attributes']
+                name = attributes.get('name', None)
+                nNumber = attributes.get('nNumber', None)
+                netid = attributes.get('netid', None)
+                password = attributes.get('password', None)
+                if name != None: db.people.update({"_id": ObjectId(person_id)}, {"$set": { "data.attributes.name": name }})
+                if nNumber != None: db.people.update({"_id": ObjectId(person_id)}, {"$set": { "data.attributes.nNumber": nNumber }})
+                if netid != None: db.people.update({"_id": ObjectId(person_id)}, {"$set": { "data.attributes.netid": netid }})
+                if password != None: db.people.update({"_id": ObjectId(person_id)}, {"$set": { "data.attributes.password": password }})
+                return Response(json.dumps({}), status=400, mimetype='application/json')
+            except KeyError:
+                return Response(json.dumps({"error": "json format not accurate"}), status=400, mimetype='application/json')
+            # add links
+    else:
+        return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
-@app.route('/api/sell_posts/', methods=['GET', 'POST'])
+@app.route('/api/sell_posts/', methods=['GET', 'POST', 'OPTIONS'])
 def sell_posts():
     if request.method == 'GET':
         results = db['sell_posts'].find()
@@ -55,18 +77,33 @@ def sell_posts():
         return toJson(json_results)
     
     if request.method == 'POST':
-        data = request.json
-        # should add validation step here
-        db['sell_posts'].insert(data)
-        return 200
-    return 404
+        js = request.json
+        seller_id = js['links']['seller']['_id']
+        res = db['people'].find_one({"_id": ObjectId(seller_id)})
+        if res == None:
+            return Response(json.dumps({"error": "seller_id does not exist"}), status=404, mimetype='application/json')
+        else:
+            offset = js['data']['attributes']['days_until_expiration']
+            now = datetime.datetime.now()
+            diff = datetime.timedelta(days=offset)
+            expired_by = now + diff
+            js['data']['attributes']['expired_by'] = expired_by
+            if js['data']['attributes']['price'] != None and js['data']['attributes']['expired_by'] != None and len(js['data']['attributes']['locations']) > 0:
+                res = db['sell_posts'].insert(js)
+                return Response(toJson(res), status=200, mimetype='application/json')
+            else:
+                return Response(json.dumps({"error": "missing required info"}), status=404, mimetype='application/json')
+    else:
+        return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
-@app.route('/api/sell_posts/<post_id>', methods=['GET'])
+@app.route('/api/sell_posts/<post_id>', methods=['GET', 'PATCH'])
 def get_sell_post(post_id):
     if request.method == 'GET':
         result = db['sell_posts'].find_one({'_id': ObjectId(post_id)})
-        return toJson(result)
-    return 404
+        return Response(toJson(result), status=200, mimetype='application/json')
+
+    else:
+        return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 
 @app.route('/api/buy_posts/', methods=['GET'])
