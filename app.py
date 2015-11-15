@@ -178,6 +178,28 @@ def buy_post(post_id):
     else:
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
+@app.route('/api/buy_posts/nearest/<post_id>', methods=['POST'])
+@crossdomain(origin='*', headers='Content-Type')
+def find_best(post_id):
+    result = db['buy_posts'].find_one({'_id': ObjectId(post_id)})
+    js = toJson(result)
+    us = json_util.loads(js)
+    price = us['data']['attributes']['price']
+    date = us['data']['attributes']['expired_by']
+    locations = us['data']['attributes']['locations']
+    used_map = {}
+    for location in locations:
+        res = db.sell_posts.find( {"data.attributes.locations": location, "data.attributes.expired_by": {"$gte": date }})
+        for i in range(0, res.count()):
+            used_map[res[i]['_id']] = res[i]
+    final_ret = []
+    for key in used_map.keys():
+        final_ret.append(used_map[key])
+
+    return Response(toJson(final_ret), status=200, mimetype='application/json')
+
+
+
 if __name__ == '__main__':
     app.debug = True
     app.run()

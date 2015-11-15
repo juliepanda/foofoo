@@ -20647,6 +20647,7 @@ var BuyPage = React.createClass({
 		request.post('http://127.0.0.1:5000/api/buy_posts').send(json).end(function (err, res) {
 			if (res.status === 200) {
 				console.log(res.text);
+				this.props._findBuyer();
 			}
 		});
 	},
@@ -20707,7 +20708,7 @@ var BuyPage = React.createClass({
 			var checker = _this4.state.diningChecked[hall]['checked'];
 			return React.createElement(
 				'div',
-				null,
+				{ className: 'checkbox-set' },
 				React.createElement('input', { type: 'checkbox', key: i, checked: checker, value: hall, onChange: _this4._toggleCheckbox.bind(_this4, i) }),
 				React.createElement(
 					'span',
@@ -20808,8 +20809,8 @@ var BuyPage = React.createClass({
 							'Dining Halls (1 or many): '
 						),
 						React.createElement(
-							'fieldset',
-							null,
+							'div',
+							{ className: 'dininghall' },
 							diningSet
 						)
 					)

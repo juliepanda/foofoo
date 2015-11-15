@@ -34,7 +34,7 @@
 .jumbotron {
 	border: 1px dotted lightgray;
 	border-radius: 25px;
-	height: 400px;
+	height: 600px;
 }
 
 /* inputs */
@@ -50,4 +50,13 @@
 .second-set-inputs {
 	display: inline-flex;
 	flex-wrap: wrap;
+}
+
+.dininghall {
+	display: inline-flex;
+	flex-wrap: wrap;
+}
+
+.checkbox-set {
+	padding: 20px;
 }

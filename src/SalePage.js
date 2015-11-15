@@ -80,6 +80,7 @@ let BuyPage = React.createClass({
 		.end( function(err, res){
 			if (res.status === 200) {
 				console.log(res.text);
+				this.props._findBuyer();
 			}
 		});
 
@@ -139,7 +140,7 @@ let BuyPage = React.createClass({
 		let diningSet = this.state.diningList.map( (hall, i) => {
 			let checker = this.state.diningChecked[hall]['checked'];
 			return (
-				<div>
+				<div className="checkbox-set">
 					<input type="checkbox" key={i} checked={checker} value={hall} onChange={this._toggleCheckbox.bind(this, i)} /><span>{hall}</span>
 				</div>
 			)
@@ -180,9 +181,9 @@ let BuyPage = React.createClass({
 				<div>
 					<div className="inputset">
 						<label>Dining Halls (1 or many): </label>
-						<fieldset>
-						{diningSet}
-						</fieldset>
+						<div className="dininghall">
+							{diningSet}
+						</div>
 					</div>
 				</div>
 				{extraQ}
