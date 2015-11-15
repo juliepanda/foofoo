@@ -20,13 +20,15 @@ let MarketJumbotron = React.createClass({
 	},
 	render: function() {
 		return (
-			<div className="row">
+			<div>
 				<div>
-					<p>Last meal bought at: <span>{this.state.recentPrice}</span></p>
-				</div>
-				<div>
-					<button onClick={this.props._handleBuy}>Buy a Meal</button>
-					<button onClick={this.props._handleSell}>Sell a Meal</button>
+					<div>
+						<p>Last meal bought at: <span>{this.state.recentPrice}</span></p>
+					</div>
+					<div>
+						<button className="button" onClick={this.props._handleSale}>Buy/Sell a Meal</button>
+						<button className="button" onClick={this.props._handleLogin}>Login</button>
+					</div>
 				</div>
 			</div>
 		)

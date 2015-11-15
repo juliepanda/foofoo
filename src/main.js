@@ -3,34 +3,33 @@ let React = require('react'),
 	ReactDOM = require('react-dom'),
 	Header = require('./Header'),
 	MarketJumbotron = require('./MarketJumbotron'),
-	BuyPage = require('./BuyPage'),
-	SellPage = require('./SellPage');
+	SalePage = require('./SalePage'),
+	LoginPage = require('./LoginPage');
 
 var App = React.createClass({
 	getInitialState: function() {
 		return {
-			buyIntent: false,
-			sellIntent: false
+			saleIntent: false
 		};
 	},
-	_handleBuy: function() {
-		console.log('switch to buy view');
+	_handleSale: function() {
 		this.setState({
-			buyIntent: true
+			saleIntent: true
 		});
 	},
-	_handleSell: function() {
-		console.log('switch to sell view');
+	_handleLogin: function() {
 		this.setState({
-			sellIntent: true
+			loginIntent: true
 		});
 	},
 	render: function() {
-		let jumbotron = ((!this.state.buyIntent && !this.state.sellIntent) ? <MarketJumbotron _handleSell={this._handleSell} _handleBuy={this._handleBuy} /> : (this.state.buyIntent) ? <BuyPage /> : <SellPage />)
+		let jumbotron = ((!this.state.saleIntent && !this.state.loginIntent) ? <MarketJumbotron _handleLogin={this._handleLogin} _handleSale={this._handleSale} /> : (this.state.saleIntent) ? <SalePage /> : <LoginPage />)
 		return (
-			<div className="main-container center">
+			<div className="row">
 				<Header />
-				{jumbotron}
+				<div className="jumbotron center">
+					{jumbotron}
+				</div>
 			</div>
 		)
 	}

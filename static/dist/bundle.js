@@ -20364,76 +20364,6 @@ module.exports = function(arr, fn, initial){
   return curr;
 };
 },{}],162:[function(require,module,exports){
-'use strict';
-
-/* jshint esnext:true */
-var React = require('react');
-var request = require('superagent');
-
-var BuyPage = React.createClass({
-	displayName: 'BuyPage',
-
-	_handlePriceOnChange: function _handlePriceOnChange(e) {
-		e.preventDefault();
-		var val = parseFloat(e.target.value).toFixed(2);
-		if (isNaN(val)) {
-			console.log(false);
-		} else {
-			console.log(true);
-		}
-	},
-	_handleNNumberOnChange: function _handleNNumberOnChange(e) {
-		e.preventDefault();
-		var str = e.target.value;
-		var val = parseInt(str.slice(1, str.length));
-		var n = str.slice(0, 1);
-		if (n === 'N' & val.length <= 8) console.log(true);else console.log(false);
-	},
-	componentWillMount: function componentWillMount() {
-		request.get('http://127.0.0.1:5000/api/users').accept('application/json').end(function (err, res) {
-			if (res.status === 200) {
-				console.log(res.text);
-			}
-		});
-	},
-	render: function render() {
-		return React.createElement(
-			'div',
-			null,
-			React.createElement(
-				'span',
-				null,
-				'Buy'
-			),
-			React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'span',
-					null,
-					'Buy Price: '
-				),
-				React.createElement('input', { type: 'text', onChange: this._handlePriceOnChange }),
-				React.createElement(
-					'span',
-					null,
-					'Quantity: '
-				),
-				React.createElement('input', { type: 'number', min: '1', max: '5' }),
-				React.createElement(
-					'span',
-					null,
-					'N-number: '
-				),
-				React.createElement('input', { type: 'text', onChange: this._handleNNumberOnChange })
-			)
-		);
-	}
-});
-
-module.exports = BuyPage;
-
-},{"react":158,"superagent":159}],163:[function(require,module,exports){
 "use strict";
 
 /* jshint esnext:true */
@@ -20462,7 +20392,80 @@ var Header = React.createClass({
 
 module.exports = Header;
 
-},{"react":158}],164:[function(require,module,exports){
+},{"react":158}],163:[function(require,module,exports){
+'use strict';
+
+/* jshint esnext:true */
+var React = require('react');
+var request = require('superagent');
+
+var LoginPage = React.createClass({
+	displayName: 'LoginPage',
+
+	getInitialState: function getInitialState() {
+		return {
+			netid: '',
+			password: ''
+		};
+	},
+	_handleNetIdChange: function _handleNetIdChange(e) {
+		e.preventDefault();
+		var str = e.target.value;
+		if (str.length > 8) console.log(false);else this.setState({ netid: str });
+	},
+	_handlePasswordChange: function _handlePasswordChange(e) {},
+	componentWillMount: function componentWillMount() {
+		request.get('http://127.0.0.1:5000/api/people').accept('application/json').end(function (err, res) {
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+	},
+	render: function render() {
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'h1',
+				null,
+				'LoginPage'
+			),
+			React.createElement(
+				'div',
+				{ className: 'first-set-inputs' },
+				React.createElement(
+					'div',
+					{ className: 'inputset' },
+					React.createElement(
+						'label',
+						null,
+						'NetId'
+					),
+					React.createElement('input', { type: 'text', onChange: this._handleNetIdChange })
+				),
+				React.createElement(
+					'div',
+					{ className: 'inputset' },
+					React.createElement(
+						'label',
+						null,
+						'Password'
+					),
+					React.createElement('input', { type: 'password', onChange: this._handlePasswordChange })
+				)
+			),
+			React.createElement(
+				'button',
+				{ className: 'button' },
+				'Submit'
+			)
+		);
+	}
+});
+
+module.exports = LoginPage;
+
+},{"react":158,"superagent":159}],164:[function(require,module,exports){
 'use strict';
 
 /* jshint esnext:true */
@@ -20487,33 +20490,37 @@ var MarketJumbotron = React.createClass({
 	render: function render() {
 		return React.createElement(
 			'div',
-			{ className: 'row' },
+			null,
 			React.createElement(
 				'div',
 				null,
 				React.createElement(
-					'p',
+					'div',
 					null,
-					'Last meal bought at: ',
 					React.createElement(
-						'span',
+						'p',
 						null,
-						this.state.recentPrice
+						'Last meal bought at: ',
+						React.createElement(
+							'span',
+							null,
+							this.state.recentPrice
+						)
 					)
-				)
-			),
-			React.createElement(
-				'div',
-				null,
-				React.createElement(
-					'button',
-					{ onClick: this.props._handleBuy },
-					'Buy a Meal'
 				),
 				React.createElement(
-					'button',
-					{ onClick: this.props._handleSell },
-					'Sell a Meal'
+					'div',
+					null,
+					React.createElement(
+						'button',
+						{ className: 'button', onClick: this.props._handleSale },
+						'Buy/Sell a Meal'
+					),
+					React.createElement(
+						'button',
+						{ className: 'button', onClick: this.props._handleLogin },
+						'Login'
+					)
 				)
 			)
 		);
@@ -20529,11 +20536,40 @@ module.exports = MarketJumbotron;
 var React = require('react');
 var request = require('superagent');
 
-var SellPage = React.createClass({
-	displayName: 'SellPage',
+var BuyPage = React.createClass({
+	displayName: 'BuyPage',
 
+	getInitialState: function getInitialState() {
+		return {
+			price: 0,
+			nNumber: '',
+			netId: '',
+			name: ''
+		};
+	},
+	_handlePriceOnChange: function _handlePriceOnChange(e) {
+		e.preventDefault();
+		var val = parseFloat(e.target.value).toFixed(2);
+		if (isNaN(val)) {
+			console.log(false);
+		} else {
+			this.setState({ price: val });
+		}
+	},
+	_handleNNumberOnChange: function _handleNNumberOnChange(e) {
+		e.preventDefault();
+		var str = e.target.value;
+		var val = parseInt(str.slice(1, str.length));
+		var n = str.slice(0, 1);
+		if (n === 'N' & val.length <= 8) this.setState({ nNumer: val });else console.log(false);
+	},
+	_handleNetIdChange: function _handleNetIdChange(e) {
+		e.preventDefault();
+		var str = e.target.value;
+		if (str.length > 8) console.log(false);else this.setState({ netid: str });
+	},
 	componentWillMount: function componentWillMount() {
-		request.get('http://127.0.0.1:5000/api/users').accept('application/json').end(function (err, res) {
+		request.get('http://127.0.0.1:5000/api/people').accept('application/json').end(function (err, res) {
 			if (res.status === 200) {
 				console.log(res.text);
 			}
@@ -20544,15 +20580,87 @@ var SellPage = React.createClass({
 			'div',
 			null,
 			React.createElement(
-				'h1',
+				'label',
 				null,
-				'SellPage'
+				'Buy'
+			),
+			React.createElement(
+				'form',
+				null,
+				React.createElement(
+					'div',
+					null,
+					React.createElement(
+						'div',
+						{ className: 'first-set-inputs' },
+						React.createElement(
+							'div',
+							{ className: 'inputset' },
+							React.createElement(
+								'label',
+								null,
+								'Buy Price: '
+							),
+							React.createElement('input', { type: 'text', onChange: this._handlePriceOnChange })
+						),
+						React.createElement(
+							'div',
+							{ className: 'inputset' },
+							React.createElement(
+								'label',
+								null,
+								'Quantity: '
+							),
+							React.createElement('input', { type: 'number', min: '1', max: '5' })
+						)
+					),
+					React.createElement('br', null),
+					React.createElement(
+						'div',
+						{ className: 'second-set-inputs' },
+						React.createElement(
+							'div',
+							{ className: 'inputset' },
+							React.createElement(
+								'label',
+								null,
+								'N-number: '
+							),
+							React.createElement('input', { type: 'text', onChange: this._handleNNumberOnChange })
+						),
+						React.createElement(
+							'div',
+							{ className: 'inputset' },
+							React.createElement(
+								'label',
+								null,
+								'net id: '
+							),
+							React.createElement('input', { type: 'text', onChange: this._handleNetIdChange })
+						),
+						React.createElement(
+							'div',
+							{ className: 'inputset' },
+							React.createElement(
+								'label',
+								null,
+								'Name: '
+							),
+							React.createElement('input', { type: 'text', onChange: this._handleNameChange })
+						)
+					)
+				),
+				React.createElement(
+					'button',
+					{ className: 'button' },
+					'Submit'
+				)
 			)
 		);
 	}
 });
 
-module.exports = SellPage;
+module.exports = BuyPage;
 
 },{"react":158,"superagent":159}],166:[function(require,module,exports){
 'use strict';
@@ -20562,41 +20670,42 @@ var React = require('react'),
     ReactDOM = require('react-dom'),
     Header = require('./Header'),
     MarketJumbotron = require('./MarketJumbotron'),
-    BuyPage = require('./BuyPage'),
-    SellPage = require('./SellPage');
+    SalePage = require('./SalePage'),
+    LoginPage = require('./LoginPage');
 
 var App = React.createClass({
 	displayName: 'App',
 
 	getInitialState: function getInitialState() {
 		return {
-			buyIntent: false,
-			sellIntent: false
+			saleIntent: false
 		};
 	},
-	_handleBuy: function _handleBuy() {
-		console.log('switch to buy view');
+	_handleSale: function _handleSale() {
 		this.setState({
-			buyIntent: true
+			saleIntent: true
 		});
 	},
-	_handleSell: function _handleSell() {
-		console.log('switch to sell view');
+	_handleLogin: function _handleLogin() {
 		this.setState({
-			sellIntent: true
+			loginIntent: true
 		});
 	},
 	render: function render() {
-		var jumbotron = !this.state.buyIntent && !this.state.sellIntent ? React.createElement(MarketJumbotron, { _handleSell: this._handleSell, _handleBuy: this._handleBuy }) : this.state.buyIntent ? React.createElement(BuyPage, null) : React.createElement(SellPage, null);
+		var jumbotron = !this.state.saleIntent && !this.state.loginIntent ? React.createElement(MarketJumbotron, { _handleLogin: this._handleLogin, _handleSale: this._handleSale }) : this.state.saleIntent ? React.createElement(SalePage, null) : React.createElement(LoginPage, null);
 		return React.createElement(
 			'div',
-			{ className: 'main-container center' },
+			{ className: 'row' },
 			React.createElement(Header, null),
-			jumbotron
+			React.createElement(
+				'div',
+				{ className: 'jumbotron center' },
+				jumbotron
+			)
 		);
 	}
 });
 
 ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
 
-},{"./BuyPage":162,"./Header":163,"./MarketJumbotron":164,"./SellPage":165,"react":158,"react-dom":2}]},{},[166]);
+},{"./Header":162,"./LoginPage":163,"./MarketJumbotron":164,"./SalePage":165,"react":158,"react-dom":2}]},{},[166]);

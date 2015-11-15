@@ -3,9 +3,14 @@
 	text-align: center;
 }
 
+.button {
+	margin: 3px 8px 3px 8px;
+}
+
 /* HEADER */
 .header {
 	display: inline-block;
+	padding: 30px;
 }
 
 .big-title {
@@ -15,4 +20,26 @@
 .subtitle {
 	padding: 10px;
 	font-size: 1.3em;
+}
+
+/* JUMBOTRON */
+.jumbotron {
+	border: 1px dotted lightgray;
+	border-radius: 25px;
+	height: 400px;
+}
+
+/* inputs */
+.inputset {
+	padding: 8px;
+}
+
+.first-set-inputs {
+	display: inline-flex;
+	flex-wrap: wrap;
+}
+
+.second-set-inputs {
+	display: inline-flex;
+	flex-wrap: wrap;
 }
