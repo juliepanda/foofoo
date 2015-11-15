@@ -20424,7 +20424,16 @@ var Header = React.createClass({
 				{ className: 'subtitle' },
 				'Marketplace to trade your campus meal swipes!'
 			),
-			logBtn
+			logBtn,
+			React.createElement(
+				'div',
+				{ className: 'logout' },
+				React.createElement(
+					'button',
+					{ className: 'button', onClick: this.props._showTickers },
+					'Tickers'
+				)
+			)
 		);
 	}
 });
@@ -20838,6 +20847,166 @@ module.exports = BuyPage;
 },{"react":158,"superagent":159}],166:[function(require,module,exports){
 'use strict';
 
+/* jshint esnext:true */
+var React = require('react');
+var request = require('superagent');
+
+var TickerPanel = React.createClass({
+	displayName: 'TickerPanel',
+
+	getInitialState: function getInitialState() {
+		return {
+			diningList: ['WEINSTEIN', 'KIMMEL', 'HAYDEN', 'RUBIN', 'PALLADIUM', 'THIRD-NORTH', 'U-HALL'],
+			diningChecked: {},
+			logged: false
+		};
+	},
+	componentWillMount: function componentWillMount() {
+		var _this = this;
+
+		var logged = localStorage.getItem('foofoologged');
+		this.setState({ logged: logged });
+		this.state.diningList.map(function (hall) {
+			_this.state.diningChecked[hall] = {
+				checked: false,
+				value: hall
+			};
+		});
+	},
+	_toggleCheckbox: function _toggleCheckbox(i) {
+		var hall = this.state.diningList[i];
+		var upd = this.state.diningChecked;
+		upd[hall]['checked'] = upd[hall]['checked'] ? false : true;
+		this.setState({
+			diningChecked: upd
+		});
+	},
+	render: function render() {
+		var _this2 = this;
+
+		var diningSet = this.state.diningList.map(function (hall, i) {
+			var checker = _this2.state.diningChecked[hall]['checked'];
+			return React.createElement(
+				'div',
+				{ className: 'ticker-checkbox-set' },
+				React.createElement('input', { type: 'checkbox', key: i, checked: checker, value: hall, onChange: _this2._toggleCheckbox.bind(_this2, i) }),
+				React.createElement(
+					'span',
+					null,
+					hall
+				)
+			);
+		});
+		return React.createElement(
+			'div',
+			{ className: 'row' },
+			React.createElement(
+				'div',
+				{ className: 'twelve columns control' },
+				diningSet
+			),
+			React.createElement(
+				'div',
+				null,
+				React.createElement(
+					'div',
+					{ className: 'six columns left-ticker' },
+					React.createElement(
+						'table',
+						{ className: 'u-full-width' },
+						React.createElement(
+							'thead',
+							null,
+							React.createElement(
+								'tr',
+								null,
+								React.createElement(
+									'th',
+									null,
+									'Name'
+								),
+								React.createElement(
+									'th',
+									null,
+									'Age'
+								),
+								React.createElement(
+									'th',
+									null,
+									'Sex'
+								),
+								React.createElement(
+									'th',
+									null,
+									'Location'
+								)
+							)
+						),
+						React.createElement(
+							'tbody',
+							null,
+							React.createElement(
+								'tr',
+								null,
+								React.createElement(
+									'td',
+									null,
+									'Dave Gamache'
+								),
+								React.createElement(
+									'td',
+									null,
+									'26'
+								),
+								React.createElement(
+									'td',
+									null,
+									'Male'
+								),
+								React.createElement(
+									'td',
+									null,
+									'San Francisco'
+								)
+							),
+							React.createElement(
+								'tr',
+								null,
+								React.createElement(
+									'td',
+									null,
+									'Dwayne Johnson'
+								),
+								React.createElement(
+									'td',
+									null,
+									'42'
+								),
+								React.createElement(
+									'td',
+									null,
+									'Male'
+								),
+								React.createElement(
+									'td',
+									null,
+									'Hayward'
+								)
+							)
+						)
+					)
+				),
+				React.createElement('div', { className: 'six columns right-ticker' })
+			)
+		);
+	}
+});
+
+module.exports = TickerPanel;
+
+},{"react":158,"superagent":159}],167:[function(require,module,exports){
+'use strict';
+
 /* jshint esnext: true */
 var React = require('react'),
     ReactDOM = require('react-dom'),
@@ -20845,6 +21014,7 @@ var React = require('react'),
     MarketJumbotron = require('./MarketJumbotron'),
     SalePage = require('./SalePage'),
     LoginPage = require('./LoginPage'),
+    TickerPanel = require('./TickerPanel'),
     request = require('superagent');
 
 var App = React.createClass({
@@ -20859,8 +21029,7 @@ var App = React.createClass({
 			loggedIn: logged,
 			userData: {},
 			failedLogin: false,
-			showSells: false,
-			showBuys: false
+			showTickers: false
 		};
 	},
 	_handleSale: function _handleSale() {
@@ -20881,6 +21050,7 @@ var App = React.createClass({
 				localStorage.setItem('_id', _id);
 				location.reload();
 			} else {
+				alert('wrong login credentials');
 				this.setState({
 					failedLogin: true
 				});
@@ -20901,16 +21071,20 @@ var App = React.createClass({
 			}
 		});
 	},
+	_showTickers: function _showTickers() {
+		this.setState({ showTickers: true });
+	},
 	render: function render() {
 		var jumbotron = !this.state.saleIntent && !this.state.loginIntent ? React.createElement(MarketJumbotron, { _handleLogin: this._handleLogin, _handleSale: this._handleSale }) : this.state.saleIntent ? React.createElement(SalePage, { _findGoodBuy: this._findGoodBuy, _findGoodSell: this._findGoodSell }) : React.createElement(LoginPage, { _handleLoginClick: this._handleLoginClick });
+		var ticker = React.createElement(TickerPanel, null);
 		return React.createElement(
 			'div',
 			{ className: 'row' },
-			React.createElement(Header, { _handleLogin: this._handleLogin }),
+			React.createElement(Header, { _handleLogin: this._handleLogin, _showTickers: this._showTickers }),
 			React.createElement(
 				'div',
 				{ className: 'jumbotron center' },
-				jumbotron
+				ticker
 			)
 		);
 	}
@@ -20918,4 +21092,4 @@ var App = React.createClass({
 
 ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
 
-},{"./Header":162,"./LoginPage":163,"./MarketJumbotron":164,"./SalePage":165,"react":158,"react-dom":2,"superagent":159}]},{},[166]);
+},{"./Header":162,"./LoginPage":163,"./MarketJumbotron":164,"./SalePage":165,"./TickerPanel":166,"react":158,"react-dom":2,"superagent":159}]},{},[167]);

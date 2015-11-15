@@ -5,6 +5,7 @@ let React = require('react'),
 	MarketJumbotron = require('./MarketJumbotron'),
 	SalePage = require('./SalePage'),
 	LoginPage = require('./LoginPage'),
+	TickerPanel = require('./TickerPanel'),
 	request = require('superagent');
 
 var App = React.createClass({
@@ -17,8 +18,7 @@ var App = React.createClass({
 			loggedIn: logged,
 			userData: {},
 			failedLogin: false,
-			showSells: false,
-			showBuys: false
+			showTickers: false
 		};
 	},
 	_handleSale: function() {
@@ -42,6 +42,7 @@ var App = React.createClass({
 				localStorage.setItem('_id', _id);
 				location.reload();
 			} else {
+				alert('wrong login credentials');
 				this.setState({
 					failedLogin: true
 				});
@@ -67,13 +68,18 @@ var App = React.createClass({
 			}
 		});
 	},
+	_showTickers: function() {
+		this.setState({ showTickers: true });
+	
+	},
 	render: function() {
 		let jumbotron = ((!this.state.saleIntent && !this.state.loginIntent) ? <MarketJumbotron _handleLogin={this._handleLogin} _handleSale={this._handleSale} /> : (this.state.saleIntent) ? <SalePage _findGoodBuy={this._findGoodBuy} _findGoodSell={this._findGoodSell} /> : <LoginPage _handleLoginClick={this._handleLoginClick} />)
+		let ticker =  (<TickerPanel />);
 		return (
 			<div className="row">
-				<Header _handleLogin={this._handleLogin} />
+				<Header _handleLogin={this._handleLogin} _showTickers={this._showTickers} />
 				<div className="jumbotron center">
-					{jumbotron}
+					{ticker}
 				</div>
 			</div>
 		)

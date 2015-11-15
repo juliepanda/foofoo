@@ -38,6 +38,9 @@ let Header = React.createClass({
 				<span className="big-title">FooFoo Space</span>
 				<span className="subtitle">Marketplace to trade your campus meal swipes!</span>
 				{logBtn}
+				<div className="logout">
+					<button className="button" onClick={this.props._showTickers}>Tickers</button>
+				</div>
 			</div>
 		)
 	}

@@ -32,9 +32,36 @@
 
 /* JUMBOTRON */
 .jumbotron {
-	border: 1px dotted lightgray;
+	border: 1px dotted gray;
 	border-radius: 25px;
 	height: 600px;
+	padding: 15px;
+}
+
+.control {
+	height: 50px;
+	display: inline-block;
+	margin 0 auto;
+}
+
+.left-ticker {
+	border: 1px dotted lightgray;
+	border-radius: 15px;
+	height: 550px;
+	padding: 5px;
+
+}
+
+.right-ticker {
+	border: 1px dotted lightgray;
+	border-radius: 15px;
+	height: 550px;
+	padding: 5px;
+}
+
+.ticker-checkbox-set {
+	display: inline-block;
+	padding: 20px;
 }
 
 /* inputs */
