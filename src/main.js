@@ -4,12 +4,15 @@ let React = require('react'),
 	Header = require('./Header'),
 	MarketJumbotron = require('./MarketJumbotron'),
 	SalePage = require('./SalePage'),
-	LoginPage = require('./LoginPage');
+	LoginPage = require('./LoginPage'),
+	request = require('superagent');
 
 var App = React.createClass({
 	getInitialState: function() {
 		return {
-			saleIntent: false
+			saleIntent: false,
+			loginIntent: false,
+			loggedIn: false
 		};
 	},
 	_handleSale: function() {
@@ -22,8 +25,20 @@ var App = React.createClass({
 			loginIntent: true
 		});
 	},
+	_handleLoginClick: function(netid, password) {
+		console.log(netid, password);
+		request
+		.post('http://127.0.0.1:5000/api/login')
+		.send({'netid': netid, 'password': password })
+		.end( function(err, res){
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+
+	},
 	render: function() {
-		let jumbotron = ((!this.state.saleIntent && !this.state.loginIntent) ? <MarketJumbotron _handleLogin={this._handleLogin} _handleSale={this._handleSale} /> : (this.state.saleIntent) ? <SalePage /> : <LoginPage />)
+		let jumbotron = ((!this.state.saleIntent && !this.state.loginIntent) ? <MarketJumbotron _handleLogin={this._handleLogin} _handleSale={this._handleSale} /> : (this.state.saleIntent) ? <SalePage /> : <LoginPage _handleLoginClick={this._handleLoginClick} />)
 		return (
 			<div className="row">
 				<Header />

@@ -20413,7 +20413,11 @@ var LoginPage = React.createClass({
 		var str = e.target.value;
 		if (str.length > 8) console.log(false);else this.setState({ netid: str });
 	},
-	_handlePasswordChange: function _handlePasswordChange(e) {},
+	_handlePasswordChange: function _handlePasswordChange(e) {
+		e.preventDefault();
+		var str = e.target.value;
+		this.setState({ password: str });
+	},
 	componentWillMount: function componentWillMount() {
 		request.get('http://127.0.0.1:5000/api/people').accept('application/json').end(function (err, res) {
 			if (res.status === 200) {
@@ -20454,9 +20458,10 @@ var LoginPage = React.createClass({
 					React.createElement('input', { type: 'password', onChange: this._handlePasswordChange })
 				)
 			),
+			React.createElement('br', null),
 			React.createElement(
 				'button',
-				{ className: 'button' },
+				{ className: 'button', onClick: this.props._handleLoginClick.bind(this, this.state.netid, this.state.password) },
 				'Submit'
 			)
 		);
@@ -20671,14 +20676,17 @@ var React = require('react'),
     Header = require('./Header'),
     MarketJumbotron = require('./MarketJumbotron'),
     SalePage = require('./SalePage'),
-    LoginPage = require('./LoginPage');
+    LoginPage = require('./LoginPage'),
+    request = require('superagent');
 
 var App = React.createClass({
 	displayName: 'App',
 
 	getInitialState: function getInitialState() {
 		return {
-			saleIntent: false
+			saleIntent: false,
+			loginIntent: false,
+			loggedIn: false
 		};
 	},
 	_handleSale: function _handleSale() {
@@ -20691,8 +20699,16 @@ var App = React.createClass({
 			loginIntent: true
 		});
 	},
+	_handleLoginClick: function _handleLoginClick(netid, password) {
+		console.log(netid, password);
+		request.post('http://127.0.0.1:5000/api/login').send({ 'netid': netid, 'password': password }).end(function (err, res) {
+			if (res.status === 200) {
+				console.log(res.text);
+			}
+		});
+	},
 	render: function render() {
-		var jumbotron = !this.state.saleIntent && !this.state.loginIntent ? React.createElement(MarketJumbotron, { _handleLogin: this._handleLogin, _handleSale: this._handleSale }) : this.state.saleIntent ? React.createElement(SalePage, null) : React.createElement(LoginPage, null);
+		var jumbotron = !this.state.saleIntent && !this.state.loginIntent ? React.createElement(MarketJumbotron, { _handleLogin: this._handleLogin, _handleSale: this._handleSale }) : this.state.saleIntent ? React.createElement(SalePage, null) : React.createElement(LoginPage, { _handleLoginClick: this._handleLoginClick });
 		return React.createElement(
 			'div',
 			{ className: 'row' },
@@ -20708,4 +20724,4 @@ var App = React.createClass({
 
 ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
 
-},{"./Header":162,"./LoginPage":163,"./MarketJumbotron":164,"./SalePage":165,"react":158,"react-dom":2}]},{},[166]);
+},{"./Header":162,"./LoginPage":163,"./MarketJumbotron":164,"./SalePage":165,"react":158,"react-dom":2,"superagent":159}]},{},[166]);

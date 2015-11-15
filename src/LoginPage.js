@@ -16,7 +16,9 @@ let LoginPage = React.createClass({
 		else this.setState({netid: str});
 	},
 	_handlePasswordChange: function(e) {
-	
+		e.preventDefault();
+		let str = e.target.value;
+		this.setState({ password: str});
 	},
 	componentWillMount: function() {
 		request
@@ -41,7 +43,8 @@ let LoginPage = React.createClass({
 						<label>Password</label><input type="password" onChange={this._handlePasswordChange} />
 						</div>
 					</div>
-					<button className="button">Submit</button>
+					<br />
+					<button className="button" onClick={this.props._handleLoginClick.bind(this, this.state.netid, this.state.password)}>Submit</button>
 			</div>
 		)
 	}

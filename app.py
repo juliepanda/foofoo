@@ -14,8 +14,24 @@ db = connection.foo
 def toJson(data):
     return json.dumps(data, default=json_util.default)
 
+@app.route('/api/login', methods=['POST', 'OPTIONS'])
+@crossdomain(origin='*', headers='Content-Type')
+def login():
+    if request.method == 'POST':
+        js = request.json
+        netid = js['netid']
+        pw = js['password']
+        res = db['people'].find_one({"data.attributes.netid": netid, "data.attributes.password": pw})
+        if res == None:
+            return Response(json.dumps({'error': 'invalid login'}), status=400, mimetype='application/json')
+        else:
+            return Response(toJson(res), status=200, mimetype='application/json')
+    else:
+        return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
+
+
 @app.route('/api/people', methods=['GET', 'POST', 'OPTIONS'])
-@crossdomain(origin='*')
+@crossdomain(origin='*', headers='Content-Type')
 def people():
     if request.method == 'GET':
         results = db['people'].find()
@@ -38,7 +54,7 @@ def people():
 
 
 @app.route('/api/people/<person_id>', methods=['GET', 'PATCH', 'OPTIONS'])
-@crossdomain(origin='*')
+@crossdomain(origin='*', headers='Content-Type')
 def person(person_id):
     if request.method == 'GET':
         result = db['people'].find_one({'_id': ObjectId(person_id)})
@@ -69,7 +85,7 @@ def person(person_id):
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 @app.route('/api/sell_posts', methods=['GET', 'POST', 'OPTIONS'])
-@crossdomain(origin='*')
+@crossdomain(origin='*', headers='Content-Type')
 def sell_posts():
     if request.method == 'GET':
         results = db['sell_posts'].find()
@@ -103,7 +119,7 @@ def sell_posts():
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 @app.route('/api/sell_posts/<post_id>', methods=['GET', 'DELETE'])
-@crossdomain(origin='*')
+@crossdomain(origin='*', headers='Content-Type')
 def sell_post(post_id):
     if request.method == 'GET':
         result = db['sell_posts'].find_one({'_id': ObjectId(post_id)})
@@ -116,7 +132,7 @@ def sell_post(post_id):
 
 
 @app.route('/api/buy_posts', methods=['GET', 'POST', 'OPTIONS'])
-@crossdomain(origin='*')
+@crossdomain(origin='*', headers='Content-Type')
 def buy_posts():
     if request.method == 'GET':
         results = db['buy_posts'].find()
@@ -151,7 +167,7 @@ def buy_posts():
         return Response(json.dumps({"error": "NOT FOUND"}), status=404, mimetype='application/json')
 
 @app.route('/api/buy_posts/<post_id>', methods=['GET', 'DELETE'])
-@crossdomain(origin='*')
+@crossdomain(origin='*', headers='Content-Type')
 def buy_post(post_id):
     if request.method == 'GET':
         result = db['buy_posts'].find_one({'_id': ObjectId(post_id)})
