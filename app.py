@@ -135,6 +135,9 @@ def buy_posts():
             print js['data']['type']
             if js['data']['attributes']['price'] != None and js['data']['attributes']['expired_by'] != None and len(js['data']['attributes']['locations']) > 0 and js['data']['type'] == 'buy_posts':
                 res = db['buy_posts'].insert(js)
+                post_id = json.loads(toJson(res))['$oid']
+                if post_id != None:
+                    db.people.update({"_id": ObjectId(buyer_id)}, {"$push": { "links.buy_posts": { "_id": post_id } }})
                 return Response(toJson(res), status=200, mimetype='application/json')
             else:
                 return Response(json.dumps({"error": "missing required info"}), status=404, mimetype='application/json')
